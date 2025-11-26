@@ -17,18 +17,16 @@
     
     <property name="content">
       <object class="AdwNavigationSplitView" id="split_view">
-        <property name="max-sidebar-width">280</property>
-        <property name="min-sidebar-width">250</property>
-        <property name="sidebar-width-fraction">0.25</property>
+        <property name="max-sidebar-width">150</property>
+        <property name="min-sidebar-width">150</property>
         
         <property name="sidebar">
           <object class="AdwNavigationPage" id="sidebar_page">
-            <property name="title">Menú</property>
+            <property name="title">Obision Store</property>
             <property name="child">
               <object class="AdwToolbarView">
                 <child type="top">
                   <object class="AdwHeaderBar">
-                    <property name="show-title">False</property>
                     <style>
                       <class name="flat"/>
                     </style>
@@ -42,91 +40,126 @@
                     <property name="vexpand">True</property>
                     
                     <child>
-                      <object class="AdwClamp">
-                        <property name="maximum-size">400</property>
-                        <property name="tightening-threshold">300</property>
-                        
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="margin-top">12</property>
+                        <property name="margin-bottom">12</property>
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">12</property>
+                        <property name="spacing">12</property>
+                                                    
                         <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="margin-top">12</property>
-                            <property name="margin-bottom">12</property>
-                            <property name="margin-start">12</property>
-                            <property name="margin-end">12</property>
-                            <property name="spacing">12</property>
-                            
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="label">Obision Store</property>
-                                <property name="halign">start</property>
-                                <property name="margin-start">6</property>
-                                <style>
-                                  <class name="title-2"/>
-                                </style>
-                              </object>
-                            </child>
-                            
-                            <child>
-                              <object class="GtkListBox" id="navigation_sidebar">
-                                <property name="selection-mode">single</property>
-                                <style>
-                                  <class name="navigation-sidebar"/>
-                                  <class name="boxed-list"/>
-                                </style>
+                          <object class="GtkBox" id="navigation_sidebar">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">6</property>
+                                <property name="homogeneous">True</property>
                                 
-                                <!-- Featured Row -->
+                                <!-- Featured Button -->
                                 <child>
-                                  <object class="AdwActionRow" id="nav_featured">
-                                    <property name="title">Destacados</property>
-                                    <property name="activatable">True</property>
-                                    <child type="prefix">
-                                      <object class="GtkImage">
-                                        <property name="icon-name">starred-symbolic</property>
+                                  <object class="GtkToggleButton" id="nav_featured">
+                                    <property name="height-request">100</property>
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">6</property>
+                                        <property name="halign">center</property>
+                                        <property name="valign">center</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">starred-symbolic</property>
+                                            <property name="pixel-size">24</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="label">Featured</property>
+                                          </object>
+                                        </child>
                                       </object>
-                                    </child>
+                                    </property>
                                   </object>
                                 </child>
                                 
-                                <!-- Categories Row -->
+                                <!-- Categories Button -->
                                 <child>
-                                  <object class="AdwActionRow" id="nav_categories">
-                                    <property name="title">Categorías</property>
-                                    <property name="activatable">True</property>
-                                    <child type="prefix">
-                                      <object class="GtkImage">
-                                        <property name="icon-name">view-app-grid-symbolic</property>
+                                  <object class="GtkToggleButton" id="nav_categories">
+                                    <property name="height-request">100</property>
+                                    <property name="group">nav_featured</property>
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">6</property>
+                                        <property name="halign">center</property>
+                                        <property name="valign">center</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">view-app-grid-symbolic</property>
+                                            <property name="pixel-size">24</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="label">Categories</property>
+                                          </object>
+                                        </child>
                                       </object>
-                                    </child>
+                                    </property>
                                   </object>
                                 </child>
                                 
-                                <!-- Installed Row -->
+                                <!-- Installed Button -->
                                 <child>
-                                  <object class="AdwActionRow" id="nav_installed">
-                                    <property name="title">Instalados</property>
-                                    <property name="activatable">True</property>
-                                    <child type="prefix">
-                                      <object class="GtkImage">
-                                        <property name="icon-name">emblem-ok-symbolic</property>
+                                  <object class="GtkToggleButton" id="nav_installed">
+                                    <property name="height-request">100</property>
+                                    <property name="group">nav_featured</property>
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">6</property>
+                                        <property name="halign">center</property>
+                                        <property name="valign">center</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">emblem-ok-symbolic</property>
+                                            <property name="pixel-size">24</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="label">Installed</property>
+                                          </object>
+                                        </child>
                                       </object>
-                                    </child>
+                                    </property>
                                   </object>
                                 </child>
                                 
-                                <!-- Updates Row -->
+                                <!-- Updates Button -->
                                 <child>
-                                  <object class="AdwActionRow" id="nav_updates">
-                                    <property name="title">Actualizaciones</property>
-                                    <property name="activatable">True</property>
-                                    <child type="prefix">
-                                      <object class="GtkImage">
-                                        <property name="icon-name">software-update-available-symbolic</property>
+                                  <object class="GtkToggleButton" id="nav_updates">
+                                    <property name="height-request">100</property>
+                                    <property name="group">nav_featured</property>
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">6</property>
+                                        <property name="halign">center</property>
+                                        <property name="valign">center</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">software-update-available-symbolic</property>
+                                            <property name="pixel-size">24</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="label">Updates</property>
+                                          </object>
+                                        </child>
                                       </object>
-                                    </child>
+                                    </property>
                                   </object>
                                 </child>
-                              </object>
-                            </child>
                           </object>
                         </child>
                       </object>
@@ -145,17 +178,23 @@
               <object class="AdwToolbarView">
                 <child type="top">
                   <object class="AdwHeaderBar" id="header_bar">
-                    <child type="start">
-                      <object class="GtkToggleButton" id="search_button">
-                        <property name="icon-name">system-search-symbolic</property>
-                        <property name="tooltip-text">Buscar aplicaciones</property>
+                    <property name="title-widget">
+                      <object class="GtkBox">
+                        <property name="halign">center</property>
+                        <property name="hexpand">True</property>
+                        <child>
+                          <object class="GtkSearchEntry" id="search_entry">
+                            <property name="placeholder-text">Search applications...</property>
+                            <property name="width-request">400</property>
+                          </object>
+                        </child>
                       </object>
-                    </child>
+                    </property>
                     
                     <child type="end">
                       <object class="GtkMenuButton" id="menu_button">
                         <property name="icon-name">open-menu-symbolic</property>
-                        <property name="tooltip-text">Menú principal</property>
+                        <property name="tooltip-text">Main menu</property>
                         <property name="primary">True</property>
                       </object>
                     </child>

@@ -3,54 +3,65 @@
   <requires lib="gtk" version="4.0"/>
   <requires lib="libadwaita" version="1.0"/>
   
-  <object class="GtkBox" id="FeaturedView">
-    <property name="orientation">vertical</property>
-    <property name="spacing">0</property>
+  <object class="GtkStack" id="FeaturedView">
+    <property name="transition-type">crossfade</property>
     
+    <!-- Loading page -->
     <child>
-      <object class="GtkScrolledWindow">
-        <property name="vexpand">true</property>
-        <property name="hexpand">true</property>
-        <child>
-          <object class="AdwClamp">
-            <property name="maximum-size">1200</property>
-            <property name="margin-start">24</property>
-            <property name="margin-end">24</property>
-            <property name="margin-top">24</property>
-            <property name="margin-bottom">24</property>
+      <object class="GtkStackPage">
+        <property name="name">loading</property>
+        <property name="child">
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">12</property>
+            <property name="valign">center</property>
+            <property name="halign">center</property>
+            <property name="vexpand">true</property>
             <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <property name="spacing">24</property>
-                
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Aplicaciones destacadas</property>
-                    <property name="halign">start</property>
-                    <property name="xalign">0</property>
-                    <style>
-                      <class name="title-1"/>
-                    </style>
-                  </object>
-                </child>
-                
-                <child>
-                  <object class="AdwCarousel" id="featured_carousel">
-                    <property name="spacing">12</property>
-                    <property name="allow-long-swipes">true</property>
-                    <property name="allow-scroll-wheel">true</property>
-                  </object>
-                </child>
-                
-                <child>
-                  <object class="AdwCarouselIndicatorDots">
-                    <property name="carousel">featured_carousel</property>
-                  </object>
-                </child>
+              <object class="GtkSpinner">
+                <property name="spinning">true</property>
+                <property name="width-request">48</property>
+                <property name="height-request">48</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Obteniendo aplicaciones del servidor...</property>
+                <style>
+                  <class name="dim-label"/>
+                </style>
               </object>
             </child>
           </object>
-        </child>
+        </property>
+      </object>
+    </child>
+    
+    <!-- Content page -->
+    <child>
+      <object class="GtkStackPage">
+        <property name="name">content</property>
+        <property name="child">
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            
+            <child>
+              <object class="AdwCarousel" id="featured_carousel">
+                <property name="spacing">12</property>
+                <property name="allow-long-swipes">true</property>
+                <property name="allow-scroll-wheel">true</property>
+                <property name="vexpand">false</property>
+                <property name="height-request">300</property>
+              </object>
+            </child>
+            
+            <child>
+              <object class="AdwCarouselIndicatorDots">
+                <property name="carousel">featured_carousel</property>
+              </object>
+            </child>
+          </object>
+        </property>
       </object>
     </child>
   </object>

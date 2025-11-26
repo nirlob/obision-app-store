@@ -1,6 +1,7 @@
 import Gtk from '@girs/gtk-4.0';
 import Adw from '@girs/adw-1';
 import Gio from '@girs/gio-2.0';
+import GLib from '@girs/glib-2.0';
 import { FeaturedComponent } from './components/featured';
 import { CategoriesComponent } from './components/categories';
 import { AppDetailsComponent } from './components/app-details';
@@ -47,7 +48,10 @@ class ObisionStoreApplication {
             this.createMainWindow();
         }
         
-        this.window.present();
+        if (this.window) {
+            this.window.present();
+            console.log('Window presented');
+        }
     }
 
     private createMainWindow(): void {
@@ -64,14 +68,14 @@ class ObisionStoreApplication {
         this.window.set_application(this.application);
         
         this.stack = builder.get_object('content_stack') as Gtk.Stack;
-        const navigationSidebar = builder.get_object('navigation_sidebar') as Gtk.ListBox;
+        const navigationSidebar = builder.get_object('navigation_sidebar') as Gtk.Box;
         
-        // Setup components
+        // Setup components and navigation
         this.initializeComponents();
         this.setupNavigation(navigationSidebar, builder);
         
         this.loadCustomCSS();
-        console.log('Window created, presenting...');
+        console.log('Window created');
     }
 
     private initializeComponents(): void {
@@ -90,32 +94,73 @@ class ObisionStoreApplication {
         this.stack.add_named(this.updatesComponent.getWidget(), 'updates');
 
         this.stack.set_visible_child_name('featured');
+        
+        // Setup stack change listener to manage component activation
+        this.stack.connect('notify::visible-child-name', () => {
+            this.onStackPageChanged();
+        });
+        
+        // Load featured apps after window is shown using GLib idle
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this.featuredComponent.load();
+            this.featuredComponent.activate(); // Activate featured component by default
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
-    private setupNavigation(navigationSidebar: Gtk.ListBox, builder: Gtk.Builder): void {
-        const navFeatured = builder.get_object('nav_featured') as Gtk.ListBoxRow;
-        const navCategories = builder.get_object('nav_categories') as Gtk.ListBoxRow;
-        const navInstalled = builder.get_object('nav_installed') as Gtk.ListBoxRow;
-        const navUpdates = builder.get_object('nav_updates') as Gtk.ListBoxRow;
+    private onStackPageChanged(): void {
+        const visiblePage = this.stack.get_visible_child_name();
+        
+        // Deactivate all components
+        this.featuredComponent.deactivate();
+        this.categoriesComponent.deactivate();
+        this.installedComponent.deactivate();
+        this.updatesComponent.deactivate();
+        
+        // Activate the visible component
+        switch (visiblePage) {
+            case 'featured':
+                this.featuredComponent.activate();
+                break;
+            case 'categories':
+                this.categoriesComponent.activate();
+                break;
+            case 'installed':
+                this.installedComponent.activate();
+                break;
+            case 'updates':
+                this.updatesComponent.activate();
+                break;
+        }
+        
+        console.log(`Stack page changed to: ${visiblePage}`);
+    }
 
-        const rowPageMap = new Map<Gtk.ListBoxRow, string>();
-        rowPageMap.set(navFeatured, 'featured');
-        rowPageMap.set(navCategories, 'categories');
-        rowPageMap.set(navInstalled, 'installed');
-        rowPageMap.set(navUpdates, 'updates');
+    private setupNavigation(navigationSidebar: Gtk.Box, builder: Gtk.Builder): void {
+        const navFeatured = builder.get_object('nav_featured') as Gtk.ToggleButton;
+        const navCategories = builder.get_object('nav_categories') as Gtk.ToggleButton;
+        const navInstalled = builder.get_object('nav_installed') as Gtk.ToggleButton;
+        const navUpdates = builder.get_object('nav_updates') as Gtk.ToggleButton;
+
+        const buttonPageMap = new Map<Gtk.ToggleButton, string>();
+        buttonPageMap.set(navFeatured, 'featured');
+        buttonPageMap.set(navCategories, 'categories');
+        buttonPageMap.set(navInstalled, 'installed');
+        buttonPageMap.set(navUpdates, 'updates');
 
         const stack = this.stack;
-        navigationSidebar.connect('row-selected', (_listBox: Gtk.ListBox, row: Gtk.ListBoxRow | null) => {
-            if (row) {
-                const pageName = rowPageMap.get(row);
-                if (pageName) {
+        
+        // Connect all toggle buttons
+        buttonPageMap.forEach((pageName, button) => {
+            button.connect('toggled', () => {
+                if (button.get_active()) {
                     stack.set_visible_child_name(pageName);
                 }
-            }
+            });
         });
 
-        // Select first item by default
-        navigationSidebar.select_row(navFeatured);
+        // Activate first button by default
+        navFeatured.set_active(true);
     }
 
     private loadCustomCSS(): void {

@@ -1,16 +1,24 @@
 import Gtk from '@girs/gtk-4.0';
+import Gio from '@girs/gio-2.0';
 import { CategoriesService } from '../services/categories-service';
 import { AppsService } from '../services/apps-service';
+import { CacheService } from '../services/cache-service';
+import { PackageInfo } from '../interfaces/package';
 
 export class CategoriesComponent {
     private container: Gtk.Box;
     private categoriesService: CategoriesService;
     private appsService: AppsService;
+    private cacheService: CacheService;
     private gridView!: Gtk.FlowBox;
+    private isActive: boolean = false;
+    private cacheUpdateCallback: ((key: string, data: PackageInfo[]) => void) | null = null;
+    private cacheKeys: string[] = [];
 
     constructor() {
         this.categoriesService = CategoriesService.instance;
         this.appsService = AppsService.instance;
+        this.cacheService = CacheService.instance;
         
         this.container = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
@@ -67,9 +75,10 @@ export class CategoriesComponent {
         });
 
         const icon = new Gtk.Image({
-            icon_name: category.icon,
             pixel_size: 64,
+            icon_size: Gtk.IconSize.LARGE,
         });
+        icon.set_from_icon_name(category.icon);
         box.append(icon);
 
         const nameLabel = new Gtk.Label({
@@ -95,5 +104,58 @@ export class CategoriesComponent {
 
     public getWidget(): Gtk.Box {
         return this.container;
+    }
+
+    public activate(): void {
+        this.isActive = true;
+        
+        // Subscribe to cache updates when component becomes active
+        if (this.cacheUpdateCallback === null && this.cacheKeys.length > 0) {
+            this.cacheUpdateCallback = this.onCacheUpdate.bind(this);
+            for (const key of this.cacheKeys) {
+                this.cacheService.subscribe(key, this.cacheUpdateCallback);
+            }
+            console.log('Categories component activated - subscribed to cache updates');
+        }
+    }
+
+    public deactivate(): void {
+        this.isActive = false;
+        
+        // Unsubscribe from cache updates when component is not active
+        if (this.cacheUpdateCallback !== null) {
+            for (const key of this.cacheKeys) {
+                this.cacheService.unsubscribe(key, this.cacheUpdateCallback);
+            }
+            console.log('Categories component deactivated - unsubscribed from cache updates');
+        }
+    }
+
+    private onCacheUpdate(key: string, data: PackageInfo[]): void {
+        // Only reload if component is currently active/visible
+        if (!this.isActive) {
+            console.log(`Categories component received cache update for ${key}, but component is not active - skipping reload`);
+            return;
+        }
+        
+        console.log(`Categories component received cache update for ${key}, reloading data...`);
+        this.reloadCategories();
+    }
+
+    private reloadCategories(): void {
+        // Clear current grid
+        let child = this.gridView.get_first_child();
+        while (child) {
+            const next = child.get_next_sibling();
+            this.gridView.remove(child);
+            child = next;
+        }
+        
+        // Reload categories
+        const categoriesData = this.categoriesService.getCategories();
+        for (const category of categoriesData.categories) {
+            const categoryCard = this.createCategoryCard(category);
+            this.gridView.append(categoryCard);
+        }
     }
 }

@@ -1,4 +1,5 @@
 import GLib from "@girs/glib-2.0";
+import Gio from "@girs/gio-2.0";
 
 export class UtilsService {
     private static _instance: UtilsService;
@@ -34,6 +35,32 @@ export class UtilsService {
         } catch (error) {
             return ['', `Error executing command: ${error}`];
         }
+    }
+
+    public executeCommandAsync(command: string, args: string[] = []): Promise<[string, string]> {
+        return new Promise((resolve, reject) => {
+            try {
+                const proc = Gio.Subprocess.new(
+                    [command, ...args],
+                    Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+                );
+
+                proc.communicate_utf8_async(null, null, (source, result) => {
+                    try {
+                        if (source) {
+                            const [, stdout, stderr] = source.communicate_utf8_finish(result);
+                            resolve([stdout || '', stderr || '']);
+                        } else {
+                            reject(new Error('Subprocess is null'));
+                        }
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     public formatBytes(bytes: number): string {

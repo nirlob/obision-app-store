@@ -1,5 +1,6 @@
 import Gtk from '@girs/gtk-4.0';
 import Adw from '@girs/adw-1';
+import Gio from '@girs/gio-2.0';
 import { AppsService } from '../services/apps-service';
 import { UtilsService } from '../services/utils-service';
 import { Application } from '../interfaces/application';
@@ -31,6 +32,8 @@ export class AppDetailsComponent {
     private buildUI(): void {
         if (!this.currentApp) return;
 
+        const app = this.currentApp;
+
         // Clear previous content
         while (this.container.get_first_child()) {
             const child = this.container.get_first_child();
@@ -59,10 +62,23 @@ export class AppDetailsComponent {
             spacing: 24,
         });
 
+        const iconStr = app.icon || 'icon:application-x-executable';
         const icon = new Gtk.Image({
-            icon_name: this.currentApp.icon || 'application-x-executable',
-            pixel_size: 128,
+            pixel_size: 96,
+            icon_size: Gtk.IconSize.LARGE,
         });
+        
+        if (iconStr.startsWith('icon:')) {
+            const iconName = iconStr.substring(5);
+            icon.set_from_icon_name(iconName);
+        } else if (iconStr.startsWith('file://')) {
+            const file = Gio.File.new_for_uri(iconStr);
+            const gicon = Gio.FileIcon.new(file);
+            icon.set_from_gicon(gicon);
+        } else {
+            icon.set_from_icon_name('application-x-executable');
+        }
+        
         headerBox.append(icon);
 
         const infoBox = new Gtk.Box({

@@ -12,14 +12,7 @@
         <property name="vexpand">true</property>
         <property name="hexpand">true</property>
         <child>
-          <object class="AdwClamp">
-            <property name="maximum-size">1000</property>
-            <property name="margin-start">24</property>
-            <property name="margin-end">24</property>
-            <property name="margin-top">24</property>
-            <property name="margin-bottom">24</property>
-            <child>
-              <object class="GtkBox">
+          <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <property name="spacing">24</property>
                 
@@ -29,7 +22,7 @@
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label">Actualizaciones disponibles</property>
+                        <property name="label">Available Updates</property>
                         <property name="halign">start</property>
                         <property name="hexpand">true</property>
                         <property name="xalign">0</property>
@@ -40,7 +33,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="update_all_button">
-                        <property name="label">Actualizar todo</property>
+                        <property name="label">Update All</property>
                         <property name="valign">center</property>
                         <style>
                           <class name="suggested-action"/>
@@ -58,8 +51,6 @@
                     </style>
                   </object>
                 </child>
-              </object>
-            </child>
           </object>
         </child>
       </object>

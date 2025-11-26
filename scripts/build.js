@@ -58,6 +58,8 @@ const gjsHeader = `#!/usr/bin/env gjs
 
 imports.gi.versions.Gtk = '4.0';
 imports.gi.versions.Adw = '1';
+imports.gi.versions.GdkPixbuf = '2.0';
+imports.gi.versions.cairo = '1.0';
 
 const { Gio } = imports.gi;
 const { Gtk } = imports.gi;
@@ -65,6 +67,8 @@ const { Gdk } = imports.gi;
 const { Adw } = imports.gi;
 const { GLib } = imports.gi;
 const { Pango } = imports.gi;
+const { GdkPixbuf } = imports.gi;
+const cairo = imports.cairo;
 
 `;
 
@@ -137,6 +141,32 @@ if (fs.existsSync(updatesServiceFile)) {
     console.log('📋 Adding UpdatesService service...');
     let content = fs.readFileSync(updatesServiceFile, 'utf8');
     const classStartIndex = content.indexOf('class UpdatesService {');
+    if (classStartIndex !== -1) {
+        content = content.substring(classStartIndex);
+    }
+    content = cleanJSContent(content);
+    combinedContent += content + '\n';
+}
+
+// Add CacheService
+const cacheServiceFile = path.join(BUILD_DIR, 'services', 'cache-service.js');
+if (fs.existsSync(cacheServiceFile)) {
+    console.log('📋 Adding CacheService service...');
+    let content = fs.readFileSync(cacheServiceFile, 'utf8');
+    const classStartIndex = content.indexOf('class CacheService {');
+    if (classStartIndex !== -1) {
+        content = content.substring(classStartIndex);
+    }
+    content = cleanJSContent(content);
+    combinedContent += content + '\n';
+}
+
+// Add PackagesService
+const packagesServiceFile = path.join(BUILD_DIR, 'services', 'packages-service.js');
+if (fs.existsSync(packagesServiceFile)) {
+    console.log('📋 Adding PackagesService service...');
+    let content = fs.readFileSync(packagesServiceFile, 'utf8');
+    const classStartIndex = content.indexOf('class PackagesService {');
     if (classStartIndex !== -1) {
         content = content.substring(classStartIndex);
     }

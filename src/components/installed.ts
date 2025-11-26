@@ -1,16 +1,24 @@
 import Gtk from '@girs/gtk-4.0';
 import Adw from '@girs/adw-1';
+import Gio from '@girs/gio-2.0';
 import { AppsService } from '../services/apps-service';
 import { AppsData } from '../interfaces/application';
+import { CacheService } from '../services/cache-service';
+import { PackageInfo } from '../interfaces/package';
 
 export class InstalledComponent {
     private container: Gtk.Box;
     private appsService: AppsService;
+    private cacheService: CacheService;
     private listBox!: Gtk.ListBox;
     private dataCallback!: (data: AppsData) => void;
+    private isActive: boolean = false;
+    private cacheUpdateCallback: ((key: string, data: PackageInfo[]) => void) | null = null;
+    private cacheKeys: string[] = [];
 
     constructor() {
         this.appsService = AppsService.instance;
+        this.cacheService = CacheService.instance;
         
         this.container = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
@@ -82,10 +90,23 @@ export class InstalledComponent {
             subtitle: app.summary,
         });
 
+        const iconStr = app.icon || 'icon:application-x-executable';
         const icon = new Gtk.Image({
-            icon_name: app.icon || 'application-x-executable',
             pixel_size: 48,
+            icon_size: Gtk.IconSize.LARGE,
         });
+        
+        if (iconStr.startsWith('icon:')) {
+            const iconName = iconStr.substring(5);
+            icon.set_from_icon_name(iconName);
+        } else if (iconStr.startsWith('file://')) {
+            const file = Gio.File.new_for_uri(iconStr);
+            const gicon = Gio.FileIcon.new(file);
+            icon.set_from_gicon(gicon);
+        } else {
+            icon.set_from_icon_name('application-x-executable');
+        }
+        
         row.add_prefix(icon);
 
         const versionLabel = new Gtk.Label({
@@ -116,5 +137,42 @@ export class InstalledComponent {
 
     public destroy(): void {
         this.appsService.unsubscribe(this.dataCallback);
+    }
+
+    public activate(): void {
+        this.isActive = true;
+        
+        // Subscribe to cache updates when component becomes active
+        if (this.cacheUpdateCallback === null && this.cacheKeys.length > 0) {
+            this.cacheUpdateCallback = this.onCacheUpdate.bind(this);
+            for (const key of this.cacheKeys) {
+                this.cacheService.subscribe(key, this.cacheUpdateCallback);
+            }
+            console.log('Installed component activated - subscribed to cache updates');
+        }
+    }
+
+    public deactivate(): void {
+        this.isActive = false;
+        
+        // Unsubscribe from cache updates when component is not active
+        if (this.cacheUpdateCallback !== null) {
+            for (const key of this.cacheKeys) {
+                this.cacheService.unsubscribe(key, this.cacheUpdateCallback);
+            }
+            console.log('Installed component deactivated - unsubscribed from cache updates');
+        }
+    }
+
+    private onCacheUpdate(key: string, data: PackageInfo[]): void {
+        // Only reload if component is currently active/visible
+        if (!this.isActive) {
+            console.log(`Installed component received cache update for ${key}, but component is not active - skipping reload`);
+            return;
+        }
+        
+        console.log(`Installed component received cache update for ${key}, reloading data...`);
+        const installedApps = this.appsService.getInstalledApps();
+        this.displayApps(installedApps);
     }
 }
