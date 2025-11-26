@@ -71,7 +71,7 @@ const { Pango } = imports.gi;
 let combinedContent = gjsHeader;
 
 // Process interfaces
-const interfaceFiles = ['application', 'category', 'update'];
+const interfaceFiles = ['application', 'category', 'update', 'package'];
 for (const interfaceName of interfaceFiles) {
     const interfaceFile = path.join(BUILD_DIR, 'interfaces', `${interfaceName}.js`);
     if (fs.existsSync(interfaceFile)) {
@@ -213,6 +213,17 @@ if (fs.existsSync(DATA_DIR)) {
 const schemaFile = path.join(DATA_DIR, 'com.obision.ObisionStore.gschema.xml');
 if (fs.existsSync(schemaFile)) {
     fs.copyFileSync(schemaFile, path.join(dataBuildDir, 'com.obision.ObisionStore.gschema.xml'));
+}
+
+// Compile GResource
+console.log('📦 Compiling GResource...');
+const gresourceXml = path.join(DATA_DIR, 'com.obision.ObisionStore.gresource.xml');
+if (fs.existsSync(gresourceXml)) {
+    try {
+        execSync(`glib-compile-resources --sourcedir=${DATA_DIR} --target=${path.join(BUILD_DIR, 'com.obision.ObisionStore.gresource')} ${gresourceXml}`, { stdio: 'inherit' });
+    } catch (error) {
+        console.warn('⚠️  Could not compile GResource');
+    }
 }
 
 console.log('✅ Build completed successfully!');

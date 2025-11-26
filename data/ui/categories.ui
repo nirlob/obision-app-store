@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  
+  <object class="GtkBox" id="CategoriesView">
+    <property name="orientation">vertical</property>
+    <property name="spacing">0</property>
+    
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="vexpand">true</property>
+        <property name="hexpand">true</property>
+        <child>
+          <object class="AdwClamp">
+            <property name="maximum-size">1200</property>
+            <property name="margin-start">24</property>
+            <property name="margin-end">24</property>
+            <property name="margin-top">24</property>
+            <property name="margin-bottom">24</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">24</property>
+                
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Categorías</property>
+                    <property name="halign">start</property>
+                    <property name="xalign">0</property>
+                    <style>
+                      <class name="title-1"/>
+                    </style>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkFlowBox" id="categories_flowbox">
+                    <property name="column-spacing">16</property>
+                    <property name="row-spacing">16</property>
+                    <property name="homogeneous">true</property>
+                    <property name="max-children-per-line">4</property>
+                    <property name="min-children-per-line">2</property>
+                    <property name="selection-mode">none</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

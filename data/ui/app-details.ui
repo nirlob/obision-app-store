@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  
+  <object class="GtkBox" id="AppDetailsView">
+    <property name="orientation">vertical</property>
+    <property name="spacing">0</property>
+    
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="vexpand">true</property>
+        <property name="hexpand">true</property>
+        <child>
+          <object class="AdwClamp">
+            <property name="maximum-size">1000</property>
+            <property name="margin-start">24</property>
+            <property name="margin-end">24</property>
+            <property name="margin-top">24</property>
+            <property name="margin-bottom">24</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">24</property>
+                
+                <!-- App Header -->
+                <child>
+                  <object class="GtkBox" id="app_header">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">16</property>
+                    <child>
+                      <object class="GtkImage" id="app_icon">
+                        <property name="pixel-size">96</property>
+                        <property name="icon-name">application-x-executable</property>
+                        <style>
+                          <class name="app-icon"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">8</property>
+                        <property name="hexpand">true</property>
+                        <child>
+                          <object class="GtkLabel" id="app_name">
+                            <property name="label">Application Name</property>
+                            <property name="halign">start</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="title-1"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="app_developer">
+                            <property name="label">Developer</property>
+                            <property name="halign">start</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">horizontal</property>
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkButton" id="install_button">
+                                <property name="label">Instalar</property>
+                                <style>
+                                  <class name="suggested-action"/>
+                                  <class name="pill"/>
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="remove_button">
+                                <property name="label">Desinstalar</property>
+                                <property name="visible">false</property>
+                                <style>
+                                  <class name="destructive-action"/>
+                                  <class name="pill"/>
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                
+                <!-- Description -->
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Descripción</property>
+                        <property name="halign">start</property>
+                        <property name="xalign">0</property>
+                        <style>
+                          <class name="title-3"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="app_description">
+                        <property name="label">App description goes here</property>
+                        <property name="halign">start</property>
+                        <property name="xalign">0</property>
+                        <property name="wrap">true</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                
+                <!-- Details -->
+                <child>
+                  <object class="GtkListBox" id="details_listbox">
+                    <property name="selection-mode">none</property>
+                    <style>
+                      <class name="boxed-list"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

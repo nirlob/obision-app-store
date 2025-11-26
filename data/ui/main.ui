@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  
+  <object class="AdwApplicationWindow" id="ObisionStoreWindow">
+    <property name="default-width">1200</property>
+    <property name="default-height">800</property>
+    <property name="title">Obision Store</property>
+    
+    <property name="content">
+      <object class="AdwBreakpoint">
+        <condition>max-width: 500sp</condition>
+        <setter object="split_view" property="collapsed">True</setter>
+      </object>
+    </property>
+    
+    <property name="content">
+      <object class="AdwNavigationSplitView" id="split_view">
+        <property name="max-sidebar-width">280</property>
+        <property name="min-sidebar-width">250</property>
+        <property name="sidebar-width-fraction">0.25</property>
+        
+        <property name="sidebar">
+          <object class="AdwNavigationPage" id="sidebar_page">
+            <property name="title">Menú</property>
+            <property name="child">
+              <object class="AdwToolbarView">
+                <child type="top">
+                  <object class="AdwHeaderBar">
+                    <property name="show-title">False</property>
+                    <style>
+                      <class name="flat"/>
+                    </style>
+                  </object>
+                </child>
+                
+                <property name="content">
+                  <object class="GtkScrolledWindow">
+                    <property name="hscrollbar-policy">never</property>
+                    <property name="vscrollbar-policy">automatic</property>
+                    <property name="vexpand">True</property>
+                    
+                    <child>
+                      <object class="AdwClamp">
+                        <property name="maximum-size">400</property>
+                        <property name="tightening-threshold">300</property>
+                        
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="margin-top">12</property>
+                            <property name="margin-bottom">12</property>
+                            <property name="margin-start">12</property>
+                            <property name="margin-end">12</property>
+                            <property name="spacing">12</property>
+                            
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">Obision Store</property>
+                                <property name="halign">start</property>
+                                <property name="margin-start">6</property>
+                                <style>
+                                  <class name="title-2"/>
+                                </style>
+                              </object>
+                            </child>
+                            
+                            <child>
+                              <object class="GtkListBox" id="navigation_sidebar">
+                                <property name="selection-mode">single</property>
+                                <style>
+                                  <class name="navigation-sidebar"/>
+                                  <class name="boxed-list"/>
+                                </style>
+                                
+                                <!-- Featured Row -->
+                                <child>
+                                  <object class="AdwActionRow" id="nav_featured">
+                                    <property name="title">Destacados</property>
+                                    <property name="activatable">True</property>
+                                    <child type="prefix">
+                                      <object class="GtkImage">
+                                        <property name="icon-name">starred-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                
+                                <!-- Categories Row -->
+                                <child>
+                                  <object class="AdwActionRow" id="nav_categories">
+                                    <property name="title">Categorías</property>
+                                    <property name="activatable">True</property>
+                                    <child type="prefix">
+                                      <object class="GtkImage">
+                                        <property name="icon-name">view-app-grid-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                
+                                <!-- Installed Row -->
+                                <child>
+                                  <object class="AdwActionRow" id="nav_installed">
+                                    <property name="title">Instalados</property>
+                                    <property name="activatable">True</property>
+                                    <child type="prefix">
+                                      <object class="GtkImage">
+                                        <property name="icon-name">emblem-ok-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                
+                                <!-- Updates Row -->
+                                <child>
+                                  <object class="AdwActionRow" id="nav_updates">
+                                    <property name="title">Actualizaciones</property>
+                                    <property name="activatable">True</property>
+                                    <child type="prefix">
+                                      <object class="GtkImage">
+                                        <property name="icon-name">software-update-available-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </property>
+          </object>
+        </property>
+        
+        <property name="content">
+          <object class="AdwNavigationPage" id="content_page">
+            <property name="title">Obision Store</property>
+            <property name="child">
+              <object class="AdwToolbarView">
+                <child type="top">
+                  <object class="AdwHeaderBar" id="header_bar">
+                    <child type="start">
+                      <object class="GtkToggleButton" id="search_button">
+                        <property name="icon-name">system-search-symbolic</property>
+                        <property name="tooltip-text">Buscar aplicaciones</property>
+                      </object>
+                    </child>
+                    
+                    <child type="end">
+                      <object class="GtkMenuButton" id="menu_button">
+                        <property name="icon-name">open-menu-symbolic</property>
+                        <property name="tooltip-text">Menú principal</property>
+                        <property name="primary">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                
+                <property name="content">
+                  <object class="GtkStack" id="content_stack">
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="transition-type">crossfade</property>
+                    <property name="transition-duration">200</property>
+                  </object>
+                </property>
+              </object>
+            </property>
+          </object>
+        </property>
+      </object>
+    </property>
+  </object>
+</interface>

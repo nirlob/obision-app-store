@@ -10,7 +10,6 @@ import { UpdatesComponent } from './components/updates';
 class ObisionStoreApplication {
     private application: Adw.Application;
     private window!: Adw.ApplicationWindow;
-    private navigationView!: Adw.NavigationView;
     private stack!: Gtk.Stack;
     
     private featuredComponent!: FeaturedComponent;
@@ -31,6 +30,14 @@ class ObisionStoreApplication {
 
     private onStartup(): void {
         console.log('Application starting up...');
+        
+        // Register resources
+        try {
+            const resource = Gio.Resource.load('builddir/com.obision.ObisionStore.gresource');
+            Gio.resources_register(resource);
+        } catch (e) {
+            console.warn('Could not load GResource:', e);
+        }
     }
 
     private onActivate(): void {
@@ -44,65 +51,30 @@ class ObisionStoreApplication {
     }
 
     private createMainWindow(): void {
-        this.window = new Adw.ApplicationWindow({
-            application: this.application,
-            default_width: 1200,
-            default_height: 800,
-            title: 'Obision Store',
-        });
-
-        // Load custom CSS if available
-        const cssProvider = new Gtk.CssProvider();
+        // Load UI from file
+        const builder = new Gtk.Builder();
         try {
-            cssProvider.load_from_path('/usr/share/com.obision.ObisionStore/style.css');
+            builder.add_from_resource('/com/obision/ObisionStore/ui/main.ui');
         } catch (e) {
-            try {
-                cssProvider.load_from_path('data/style.css');
-            } catch (e2) {
-                console.warn('Could not load custom CSS');
-            }
+            console.error('Error loading UI:', e);
+            return;
         }
 
-        if (cssProvider) {
-            Gtk.StyleContext.add_provider_for_display(
-                this.window.get_display()!,
-                cssProvider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-            );
-        }
+        this.window = builder.get_object('ObisionStoreWindow') as Adw.ApplicationWindow;
+        this.window.set_application(this.application);
+        
+        this.stack = builder.get_object('content_stack') as Gtk.Stack;
+        const navigationSidebar = builder.get_object('navigation_sidebar') as Gtk.ListBox;
+        
+        // Setup components
+        this.initializeComponents();
+        this.setupNavigation(navigationSidebar, builder);
+        
+        this.loadCustomCSS();
+        console.log('Window created, presenting...');
+    }
 
-        const mainBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 0,
-        });
-
-        // Header bar
-        const headerBar = new Adw.HeaderBar();
-
-        const searchButton = new Gtk.ToggleButton({
-            icon_name: 'system-search-symbolic',
-        });
-        headerBar.pack_start(searchButton);
-
-        const menuButton = new Gtk.MenuButton({
-            icon_name: 'open-menu-symbolic',
-        });
-        headerBar.pack_end(menuButton);
-
-        mainBox.append(headerBar);
-
-        // Main content with sidebar
-        const contentBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 0,
-        });
-
-        // Content area with stack (create first)
-        this.stack = new Gtk.Stack({
-            hexpand: true,
-            vexpand: true,
-        });
-
+    private initializeComponents(): void {
         // Create components
         this.featuredComponent = new FeaturedComponent();
         this.categoriesComponent = new CategoriesComponent();
@@ -118,76 +90,22 @@ class ObisionStoreApplication {
         this.stack.add_named(this.updatesComponent.getWidget(), 'updates');
 
         this.stack.set_visible_child_name('featured');
-
-        // Now create sidebar (after stack exists)
-        const sidebar = this.createSidebar();
-        contentBox.append(sidebar);
-
-        // Separator
-        const separator = new Gtk.Separator({
-            orientation: Gtk.Orientation.VERTICAL,
-        });
-        contentBox.append(separator);
-
-        contentBox.append(this.stack);
-        mainBox.append(contentBox);
-
-        this.window.set_content(mainBox);
-        console.log('Window created, presenting...');
     }
 
-    private createSidebar(): Gtk.Box {
-        const sidebar = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 0,
-            width_request: 200,
-        });
-
-        const listBox = new Gtk.ListBox({
-            selection_mode: Gtk.SelectionMode.SINGLE,
-        });
-        listBox.add_css_class('navigation-sidebar');
-
-        const menuItems = [
-            { name: 'Featured', icon: 'starred-symbolic', page: 'featured' },
-            { name: 'Categories', icon: 'view-app-grid-symbolic', page: 'categories' },
-            { name: 'Installed', icon: 'emblem-ok-symbolic', page: 'installed' },
-            { name: 'Updates', icon: 'software-update-available-symbolic', page: 'updates' },
-        ];
+    private setupNavigation(navigationSidebar: Gtk.ListBox, builder: Gtk.Builder): void {
+        const navFeatured = builder.get_object('nav_featured') as Gtk.ListBoxRow;
+        const navCategories = builder.get_object('nav_categories') as Gtk.ListBoxRow;
+        const navInstalled = builder.get_object('nav_installed') as Gtk.ListBoxRow;
+        const navUpdates = builder.get_object('nav_updates') as Gtk.ListBoxRow;
 
         const rowPageMap = new Map<Gtk.ListBoxRow, string>();
-
-        for (const item of menuItems) {
-            const row = new Gtk.ListBoxRow();
-            
-            const box = new Gtk.Box({
-                orientation: Gtk.Orientation.HORIZONTAL,
-                spacing: 12,
-                margin_start: 12,
-                margin_end: 12,
-                margin_top: 6,
-                margin_bottom: 6,
-            });
-
-            const icon = new Gtk.Image({
-                icon_name: item.icon,
-                pixel_size: 16,
-            });
-            box.append(icon);
-
-            const label = new Gtk.Label({
-                label: item.name,
-                halign: Gtk.Align.START,
-            });
-            box.append(label);
-
-            row.set_child(box);
-            rowPageMap.set(row, item.page);
-            listBox.append(row);
-        }
+        rowPageMap.set(navFeatured, 'featured');
+        rowPageMap.set(navCategories, 'categories');
+        rowPageMap.set(navInstalled, 'installed');
+        rowPageMap.set(navUpdates, 'updates');
 
         const stack = this.stack;
-        listBox.connect('row-selected', (_listBox: Gtk.ListBox, row: Gtk.ListBoxRow | null) => {
+        navigationSidebar.connect('row-selected', (_listBox: Gtk.ListBox, row: Gtk.ListBoxRow | null) => {
             if (row) {
                 const pageName = rowPageMap.get(row);
                 if (pageName) {
@@ -197,10 +115,28 @@ class ObisionStoreApplication {
         });
 
         // Select first item by default
-        listBox.select_row(listBox.get_row_at_index(0)!);
+        navigationSidebar.select_row(navFeatured);
+    }
 
-        sidebar.append(listBox);
-        return sidebar;
+    private loadCustomCSS(): void {
+        const cssProvider = new Gtk.CssProvider();
+        try {
+            cssProvider.load_from_resource('/com/obision/ObisionStore/style.css');
+        } catch (e) {
+            try {
+                cssProvider.load_from_path('data/style.css');
+            } catch (e2) {
+                console.warn('Could not load custom CSS');
+            }
+        }
+
+        if (cssProvider) {
+            Gtk.StyleContext.add_provider_for_display(
+                this.window.get_display()!,
+                cssProvider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            );
+        }
     }
 
     public run(args: string[]): number {

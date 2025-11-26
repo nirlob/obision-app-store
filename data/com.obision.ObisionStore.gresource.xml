@@ -2,5 +2,11 @@
 <gresources>
   <gresource prefix="/com/obision/ObisionStore">
     <file compressed="true">style.css</file>
+    <file>ui/main.ui</file>
+    <file>ui/featured.ui</file>
+    <file>ui/categories.ui</file>
+    <file>ui/installed.ui</file>
+    <file>ui/updates.ui</file>
+    <file>ui/app-details.ui</file>
   </gresource>
 </gresources>

@@ -5,14 +5,31 @@ import { AppsData } from '../interfaces/application';
 
 export class FeaturedComponent {
     private container: Gtk.Box;
-    private appsService: AppsService;
-    private carouselIndicatorDots!: Adw.CarouselIndicatorDots;
     private carousel!: Adw.Carousel;
+    private appsService: AppsService;
 
     constructor() {
         this.appsService = AppsService.instance;
         
-        this.container = new Gtk.Box({
+        // Load UI from file
+        const builder = new Gtk.Builder();
+        try {
+            builder.add_from_resource('/com/obision/ObisionStore/ui/featured.ui');
+        } catch (e) {
+            console.error('Error loading featured UI:', e);
+            // Fallback to manual creation
+            this.container = this.createManualUI();
+            return;
+        }
+
+        this.container = builder.get_object('FeaturedView') as Gtk.Box;
+        this.carousel = builder.get_object('featured_carousel') as Adw.Carousel;
+        
+        this.loadFeaturedApps();
+    }
+
+    private createManualUI(): Gtk.Box {
+        const box = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 12,
             margin_start: 24,
@@ -22,30 +39,35 @@ export class FeaturedComponent {
         });
 
         const titleLabel = new Gtk.Label({
-            label: '<span size="x-large" weight="bold">Featured Apps</span>',
-            use_markup: true,
+            label: 'Aplicaciones destacadas',
             halign: Gtk.Align.START,
-            margin_bottom: 12,
+            xalign: 0,
         });
-        this.container.append(titleLabel);
+        titleLabel.add_css_class('title-1');
+        box.append(titleLabel);
 
         this.carousel = new Adw.Carousel({
             spacing: 12,
+            allow_long_swipes: true,
             allow_scroll_wheel: true,
         });
+        box.append(this.carousel);
 
+        const dots = new Adw.CarouselIndicatorDots({
+            carousel: this.carousel,
+        });
+        box.append(dots);
+
+        this.loadFeaturedApps();
+        return box;
+    }
+
+    private loadFeaturedApps(): void {
         const featuredApps = this.appsService.getFeaturedApps();
         for (const app of featuredApps) {
             const appCard = this.createFeaturedCard(app);
             this.carousel.append(appCard);
         }
-
-        this.container.append(this.carousel);
-
-        this.carouselIndicatorDots = new Adw.CarouselIndicatorDots({
-            carousel: this.carousel,
-        });
-        this.container.append(this.carouselIndicatorDots);
     }
 
     private createFeaturedCard(app: any): Gtk.Box {
