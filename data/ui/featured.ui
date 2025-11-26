@@ -5,7 +5,7 @@
   
   <object class="GtkStack" id="FeaturedView">
     <property name="transition-type">crossfade</property>
-    
+
     <!-- Loading page -->
     <child>
       <object class="GtkStackPage">
@@ -44,20 +44,72 @@
         <property name="child">
           <object class="GtkBox">
             <property name="orientation">vertical</property>
+            <property name="spacing">12</property>
+            <property name="margin-top">24</property>
+            <property name="margin-bottom">24</property>
+            <property name="margin-start">24</property>
+            <property name="margin-end">24</property>
             
+            <!-- Carousel with navigation overlay -->
             <child>
-              <object class="AdwCarousel" id="featured_carousel">
-                <property name="spacing">12</property>
-                <property name="allow-long-swipes">true</property>
-                <property name="allow-scroll-wheel">true</property>
-                <property name="vexpand">false</property>
-                <property name="height-request">300</property>
+              <object class="GtkOverlay" id="carousel_overlay">
+                <property name="child">
+                  <object class="AdwCarousel" id="featured_carousel">
+                    <property name="spacing">0</property>
+                    <property name="allow-long-swipes">true</property>
+                    <property name="allow-scroll-wheel">true</property>
+                    <property name="vexpand">false</property>
+                    <property name="height-request">200</property>
+                  </object>
+                </property>
+                
+                <!-- Previous button overlay -->
+                <child type="overlay">
+                  <object class="GtkButton" id="prev_button">
+                    <property name="icon-name">go-previous-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">12</property>
+                    <style>
+                      <class name="circular"/>
+                      <class name="osd"/>
+                    </style>
+                  </object>
+                </child>
+                
+                <!-- Next button overlay -->
+                <child type="overlay">
+                  <object class="GtkButton" id="next_button">
+                    <property name="icon-name">go-next-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="halign">end</property>
+                    <property name="margin-end">12</property>
+                    <style>
+                      <class name="circular"/>
+                      <class name="osd"/>
+                    </style>
+                  </object>
+                </child>
               </object>
             </child>
             
+            <!-- Popular apps grid -->
             <child>
-              <object class="AdwCarouselIndicatorDots">
-                <property name="carousel">featured_carousel</property>
+              <object class="GtkScrolledWindow" id="apps_scroll">
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+                <property name="vscrollbar-policy">automatic</property>
+                <property name="hscrollbar-policy">never</property>
+                <property name="margin-top">12</property>
+                
+                <property name="child">
+                  <object class="GtkGrid" id="apps_grid">
+                    <property name="row-spacing">6</property>
+                    <property name="column-spacing">6</property>
+                    <property name="row-homogeneous">false</property>
+                    <property name="column-homogeneous">true</property>
+                  </object>
+                </property>
               </object>
             </child>
           </object>

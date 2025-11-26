@@ -30,6 +30,10 @@ function cleanJSContent(content) {
         // Remove all import statements
         .replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, '')
         
+        // Remove export statements
+        .replace(/^export\s+{[^}]*};?\s*$/gm, '')
+        .replace(/^export\s+/gm, '')
+        
         // Remove 'use strict'
         .replace(/["']use strict["'];?\s*/g, '')
         
@@ -80,6 +84,19 @@ for (const interfaceName of interfaceFiles) {
     const interfaceFile = path.join(BUILD_DIR, 'interfaces', `${interfaceName}.js`);
     if (fs.existsSync(interfaceFile)) {
         console.log(`📋 Processing ${interfaceName} interface...`);
+    }
+}
+
+// Add constants
+const constantsDir = path.join(BUILD_DIR, 'constants');
+if (fs.existsSync(constantsDir)) {
+    const constantFiles = fs.readdirSync(constantsDir).filter(file => file.endsWith('.js'));
+    for (const constFile of constantFiles) {
+        const constPath = path.join(constantsDir, constFile);
+        console.log(`📋 Adding ${constFile} constants...`);
+        let content = fs.readFileSync(constPath, 'utf8');
+        content = cleanJSContent(content);
+        combinedContent += content + '\n';
     }
 }
 
@@ -172,6 +189,26 @@ if (fs.existsSync(packagesServiceFile)) {
     }
     content = cleanJSContent(content);
     combinedContent += content + '\n';
+}
+
+// Add atomic components
+const atomsDir = path.join(BUILD_DIR, 'components', 'atoms');
+if (fs.existsSync(atomsDir)) {
+    const atomicComponents = fs.readdirSync(atomsDir).filter(file => file.endsWith('.js'));
+    for (const atomFile of atomicComponents) {
+        const atomPath = path.join(atomsDir, atomFile);
+        const atomName = atomFile.replace('.js', '').split('-').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join('');
+        console.log(`📋 Adding ${atomName} atomic component...`);
+        let content = fs.readFileSync(atomPath, 'utf8');
+        const classStartIndex = content.indexOf(`class ${atomName} {`);
+        if (classStartIndex !== -1) {
+            content = content.substring(classStartIndex);
+        }
+        content = cleanJSContent(content);
+        combinedContent += content + '\n';
+    }
 }
 
 // Add components

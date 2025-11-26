@@ -90,7 +90,7 @@ export class InstalledComponent {
             subtitle: app.summary,
         });
 
-        const iconStr = app.icon || 'icon:application-x-executable';
+        const iconStr = app.icon || 'icon:emblem-system-symbolic';
         const icon = new Gtk.Image({
             pixel_size: 48,
             icon_size: Gtk.IconSize.LARGE,
@@ -104,7 +104,7 @@ export class InstalledComponent {
             const gicon = Gio.FileIcon.new(file);
             icon.set_from_gicon(gicon);
         } else {
-            icon.set_from_icon_name('application-x-executable');
+            icon.set_from_icon_name('emblem-system-symbolic');
         }
         
         row.add_prefix(icon);

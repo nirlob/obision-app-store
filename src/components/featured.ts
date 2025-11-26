@@ -8,11 +8,15 @@ import { PackagesService } from '../services/packages-service';
 import { CacheService } from '../services/cache-service';
 import { PackageInfo } from '../interfaces/package';
 import { AppCardCarousel } from './atoms/app-card-carousel';
+import { AppCardMini } from './atoms/app-card-mini';
 import { CATEGORY_COLORS } from '../constants/theme';
 
 export class FeaturedComponent {
     private container: Gtk.Stack;
     private carousel!: Adw.Carousel;
+    private appsGrid!: Gtk.Grid;
+    private prevButton!: Gtk.Button;
+    private nextButton!: Gtk.Button;
     private packagesService: PackagesService;
     private cacheService: CacheService;
     private packageKeys: string[] = [];
@@ -24,62 +28,37 @@ export class FeaturedComponent {
         this.cacheService = CacheService.instance;
         
         // Load UI from file
-        const builder = new Gtk.Builder();
-        try {
-            builder.add_from_resource('/com/obision/ObisionStore/ui/featured.ui');
-        } catch (e) {
-            console.error('Error loading featured UI:', e);
-            // Fallback to manual creation
-            this.container = this.createManualUI();
-            return;
-        }
-
-        this.container = builder.get_object('FeaturedView') as Gtk.Stack;
-        this.carousel = builder.get_object('featured_carousel') as Adw.Carousel;
-        
-        // Show loading state
-        this.container.set_visible_child_name('loading');
+        this.container = this.loadUI();
     }
 
-    private createManualUI(): Gtk.Stack {
-        const stack = new Gtk.Stack({
-            transition_type: Gtk.StackTransitionType.CROSSFADE,
-        });
-
-        // Loading page
-        const loadingBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 12,
-            valign: Gtk.Align.CENTER,
-            halign: Gtk.Align.CENTER,
-            vexpand: true,
-        });
-        const spinner = new Gtk.Spinner({ spinning: true, width_request: 48, height_request: 48 });
-        loadingBox.append(spinner);
-        const loadingLabel = new Gtk.Label({ label: 'Obteniendo aplicaciones del servidor...' });
-        loadingLabel.add_css_class('dim-label');
-        loadingBox.append(loadingLabel);
-        stack.add_named(loadingBox, 'loading');
-
-        // Content page
-        const box = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 12,
-        });
-
-        this.carousel = new Adw.Carousel({
-            spacing: 12,
-            allow_long_swipes: true,
-            allow_scroll_wheel: true,
-        });
-        box.append(this.carousel);
-
-        const dots = new Adw.CarouselIndicatorDots({
-            carousel: this.carousel,
-        });
-        box.append(dots);
+    private loadUI(): Gtk.Stack {
+        const builder = new Gtk.Builder();
+        builder.add_from_resource('/com/obision/ObisionStore/ui/featured.ui');
         
-        stack.add_named(box, 'content');
+        const stack = builder.get_object('FeaturedView') as Gtk.Stack;
+        this.carousel = builder.get_object('featured_carousel') as Adw.Carousel;
+        this.appsGrid = builder.get_object('apps_grid') as Gtk.Grid;
+        this.prevButton = builder.get_object('prev_button') as Gtk.Button;
+        this.nextButton = builder.get_object('next_button') as Gtk.Button;
+        
+        // Connect navigation buttons
+        this.prevButton.connect('clicked', () => {
+            const currentPage = this.carousel.get_position();
+            const targetPage = Math.floor(currentPage) - 1;
+            if (targetPage >= 0) {
+                this.carousel.scroll_to(this.carousel.get_nth_page(targetPage), true);
+            }
+        });
+
+        this.nextButton.connect('clicked', () => {
+            const currentPage = this.carousel.get_position();
+            const targetPage = Math.floor(currentPage) + 1;
+            const nPages = this.carousel.get_n_pages();
+            if (targetPage < nPages) {
+                this.carousel.scroll_to(this.carousel.get_nth_page(targetPage), true);
+            }
+        });
+        
         stack.set_visible_child_name('loading');
         
         return stack;
@@ -117,13 +96,38 @@ export class FeaturedComponent {
     }
 
     private loadFeaturedApps(): void {
-        // Featured packages to display
+        // Featured packages to display in carousel
         const featuredPackageNames = [
             'firefox-esr',
             'gimp',
             'vlc',
             'libreoffice',
-            'inkscape'
+            'inkscape',
+            'blender'
+        ];
+
+        // Popular apps to display in list
+        const popularPackageNames = [
+            'thunderbird',
+            'chromium',
+            'code',
+            'telegram-desktop',
+            'spotify-client',
+            'discord',
+            'audacity',
+            'obs-studio',
+            'krita',
+            'kdenlive',
+            'handbrake',
+            'transmission',
+            'filezilla',
+            'vim',
+            'git',
+            'docker.io',
+            'virtualbox',
+            'qbittorrent',
+            'steam',
+            'wine'
         ];
 
         // Store cache keys for subscription
@@ -132,12 +136,53 @@ export class FeaturedComponent {
             this.packageKeys.push(cacheKey);
         }
 
+        const loadedPackages: PackageInfo[] = [];
+        const popularPackages: PackageInfo[] = [];
         let index = 0;
         
         // Load packages one by one asynchronously
         const loadNext = () => {
             if (index >= featuredPackageNames.length) {
-                // All loaded, show content
+                // All loaded, group in pairs and add to carousel
+                for (let i = 0; i < loadedPackages.length; i += 2) {
+                    const page = new Gtk.Box({
+                        orientation: Gtk.Orientation.HORIZONTAL,
+                        spacing: 12,
+                        homogeneous: false,
+                        hexpand: true,
+                        vexpand: false,
+                        valign: Gtk.Align.START,
+                        margin_start: 0,
+                        margin_end: 0,
+                    });
+                    
+                    // Add first card with margin
+                    const card1Box = new Gtk.Box({
+                        orientation: Gtk.Orientation.VERTICAL,
+                        hexpand: true,
+                        margin_end: 6,
+                    });
+                    const card1 = this.createFeaturedCard(loadedPackages[i]);
+                    card1Box.append(card1);
+                    page.append(card1Box);
+                    
+                    // Add second card if exists
+                    if (i + 1 < loadedPackages.length) {
+                        const card2Box = new Gtk.Box({
+                            orientation: Gtk.Orientation.VERTICAL,
+                            hexpand: true,
+                            margin_start: 6,
+                        });
+                        const card2 = this.createFeaturedCard(loadedPackages[i + 1]);
+                        card2Box.append(card2);
+                        page.append(card2Box);
+                    }
+                    
+                    this.carousel.append(page);
+                }
+                
+                // Now load popular apps
+                this.loadPopularApps(popularPackageNames);
                 this.container.set_visible_child_name('content');
                 return GLib.SOURCE_REMOVE;
             }
@@ -148,9 +193,7 @@ export class FeaturedComponent {
             // Load package asynchronously
             this.packagesService.searchDebianPackagesAsync(packageName).then(packages => {
                 if (packages.length > 0) {
-                    const pkg = packages[0];
-                    const appCard = this.createFeaturedCard(pkg);
-                    this.carousel.append(appCard);
+                    loadedPackages.push(packages[0]);
                 }
                 // Schedule next package
                 GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
@@ -165,6 +208,58 @@ export class FeaturedComponent {
         
         // Start loading
         GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
+    }
+
+    private loadPopularApps(packageNames: string[]): void {
+        const loadedApps: PackageInfo[] = [];
+        let index = 0;
+        
+        const loadNext = () => {
+            if (index >= packageNames.length) {
+                // All loaded, arrange in grid with 5 apps per row
+                this.arrangeAppsInGrid(loadedApps);
+                return GLib.SOURCE_REMOVE;
+            }
+            
+            const packageName = packageNames[index];
+            index++;
+            
+            this.packagesService.searchDebianPackagesAsync(packageName).then(packages => {
+                if (packages.length > 0) {
+                    loadedApps.push(packages[0]);
+                }
+                // Schedule next package
+                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
+            }).catch(error => {
+                console.error(`Error loading package ${packageName}:`, error);
+                // Continue with next package even on error
+                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
+            });
+            
+            return GLib.SOURCE_REMOVE;
+        };
+        
+        // Start loading
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
+    }
+
+    private arrangeAppsInGrid(apps: PackageInfo[]): void {
+        const columns = 4;
+        
+        for (let i = 0; i < apps.length; i++) {
+            const app = apps[i];
+            const row = Math.floor(i / columns);
+            const col = i % columns;
+            
+            const cardComponent = new AppCardMini({
+                app,
+                onInstall: async (appId: string) => {
+                    await this.packagesService.installDebianPackage(appId);
+                }
+            });
+            
+            this.appsGrid.attach(cardComponent.getWidget(), col, row, 1, 1);
+        }
     }
 
     private onCacheUpdate(key: string, data: PackageInfo[]): void {
@@ -184,10 +279,40 @@ export class FeaturedComponent {
             child = next;
         }
         
-        // Reload with updated data
-        for (const pkg of data) {
-            const appCard = this.createFeaturedCard(pkg);
-            this.carousel.append(appCard);
+        // Reload with updated data in pairs
+        for (let i = 0; i < data.length; i += 2) {
+            const page = new Gtk.Box({
+                orientation: Gtk.Orientation.HORIZONTAL,
+                spacing: 12,
+                homogeneous: false,
+                hexpand: true,
+                vexpand: false,
+                valign: Gtk.Align.START,
+                margin_start: 0,
+                margin_end: 0,
+            });
+            
+            const card1Box = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                hexpand: true,
+                margin_end: 6,
+            });
+            const card1 = this.createFeaturedCard(data[i]);
+            card1Box.append(card1);
+            page.append(card1Box);
+            
+            if (i + 1 < data.length) {
+                const card2Box = new Gtk.Box({
+                    orientation: Gtk.Orientation.VERTICAL,
+                    hexpand: true,
+                    margin_start: 6,
+                });
+                const card2 = this.createFeaturedCard(data[i + 1]);
+                card2Box.append(card2);
+                page.append(card2Box);
+            }
+            
+            this.carousel.append(page);
         }
     }
 
@@ -211,21 +336,24 @@ export class FeaturedComponent {
         const container = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             hexpand: true,
+            vexpand: false,
+            valign: Gtk.Align.START,
+            overflow: Gtk.Overflow.HIDDEN,
         });
         
-        // Apply CSS for background color with margin (no border, no rounded corners)
+        // Apply CSS for background color with rounded corners
         const cssProvider = new Gtk.CssProvider();
-        const css = `box { background-color: ${color}; padding: 12px; margin: 24px; border-radius: 0; border: none; }`;
+        const css = `box { background-color: ${color}; padding: 8px; margin: 0; border-radius: 10px; border: none; }`;
         cssProvider.load_from_data(css, css.length);
         
         const styleContext = container.get_style_context();
         styleContext.add_provider(cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
         
-        // Create DrawingArea for watermark pattern
+        // Create DrawingArea for watermark pattern with fixed height
         const watermark = new Gtk.DrawingArea({
             hexpand: true,
-            vexpand: true,
-            height_request: 200,
+            vexpand: false,
+            height_request: 184,
         });
         
         watermark.set_draw_func((area: Gtk.DrawingArea, cr: any, width: number, height: number) => {

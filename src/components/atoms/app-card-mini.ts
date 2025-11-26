@@ -3,45 +3,40 @@ import Gio from '@girs/gio-2.0';
 import { PackageInfo } from '../../interfaces/package';
 import { PackagesService } from '../../services/packages-service';
 
-export interface AppCardCarouselOptions {
+export interface AppCardMiniOptions {
     app: PackageInfo;
     onInstall?: (appId: string) => void | Promise<void>;
 }
 
-export class AppCardCarousel {
+export class AppCardMini {
     private card: Gtk.Box;
     private installButton!: Gtk.Button;
     private packagesService: PackagesService;
 
-    constructor(options: AppCardCarouselOptions) {
+    constructor(options: AppCardMiniOptions) {
         this.packagesService = PackagesService.instance;
         this.card = this.createCard(options);
     }
 
-    private createCard(options: AppCardCarouselOptions): Gtk.Box {
+    private createCard(options: AppCardMiniOptions): Gtk.Box {
         const { app } = options;
 
         const card = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 0,
+            spacing: 12,
             hexpand: true,
-            vexpand: true,
-            valign: Gtk.Align.FILL,
-            halign: Gtk.Align.FILL,
+            vexpand: false,
+            margin_top: 5,
+            margin_bottom: 5,
+            margin_start: 5,
+            margin_end: 5,
+            css_classes: ['card'],
         });
 
-        // Icon section with fixed width
-        const iconBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            valign: Gtk.Align.CENTER,
-            halign: Gtk.Align.CENTER,
-            width_request: 180,
-            hexpand: false,
-        });
-
+        // Icon
         const iconName = app.icon || 'emblem-system-symbolic';
         const icon = new Gtk.Image({
-            pixel_size: 140,
+            pixel_size: 48,
         });
         
         if (iconName.startsWith('file://')) {
@@ -49,78 +44,49 @@ export class AppCardCarousel {
             const gicon = Gio.FileIcon.new(file);
             icon.set_from_gicon(gicon);
         } else {
-            // Use GThemedIcon for themed icons (automatically finds color version)
             const gicon = Gio.ThemedIcon.new(iconName);
             icon.set_from_gicon(gicon);
         }
         
-        iconBox.append(icon);
-        card.append(iconBox);
+        card.append(icon);
 
-        // Content section
+        // Content
         const contentBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
-            spacing: 0,
+            spacing: 4,
             hexpand: true,
-            vexpand: true,
-            valign: Gtk.Align.FILL,
-            margin_end: 16,
-        });
-
-        // Info section - centered vertically
-        const infoBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 6,
             valign: Gtk.Align.CENTER,
-            vexpand: true,
         });
 
         // Capitalize first letter of name
         const capitalizedName = app.name.charAt(0).toUpperCase() + app.name.slice(1);
         const nameLabel = new Gtk.Label({
-            label: `<span size="xx-large" weight="bold">${capitalizedName}</span>`,
-            use_markup: true,
+            label: capitalizedName,
             halign: Gtk.Align.START,
-            valign: Gtk.Align.START,
-            wrap: true,
-            max_width_chars: 35,
-            lines: 1,
             ellipsize: 3, // Pango.EllipsizeMode.END
         });
-        infoBox.append(nameLabel);
+        nameLabel.add_css_class('heading');
+        contentBox.append(nameLabel);
 
         // Capitalize first letter of summary
         const capitalizedSummary = app.summary.charAt(0).toUpperCase() + app.summary.slice(1);
         const summaryLabel = new Gtk.Label({
             label: capitalizedSummary,
-            use_markup: false,
             halign: Gtk.Align.START,
-            valign: Gtk.Align.START,
-            wrap: true,
-            wrap_mode: 2, // Pango.WrapMode.WORD
-            max_width_chars: 40,
-            lines: 2,
             ellipsize: 3, // Pango.EllipsizeMode.END
-            height_request: 60, // Fixed height for 2 lines
-            xalign: 0,
-            yalign: 0,
         });
-        summaryLabel.add_css_class('title-4');
+        summaryLabel.add_css_class('caption');
         summaryLabel.add_css_class('dim-label');
-        infoBox.append(summaryLabel);
+        contentBox.append(summaryLabel);
 
-        contentBox.append(infoBox);
+        card.append(contentBox);
 
-        // Install button - fixed at bottom right
+        // Install button with play icon
         this.installButton = new Gtk.Button({
-            label: app.installed ? 'Installed' : 'Install',
+            icon_name: 'media-playback-start-symbolic',
             sensitive: !app.installed,
-            css_classes: ['suggested-action', 'pill'],
-            width_request: 120,
-            height_request: 40,
-            halign: Gtk.Align.END,
-            valign: Gtk.Align.END,
-            margin_bottom: 12,
+            css_classes: ['circular', 'suggested-action'],
+            valign: Gtk.Align.CENTER,
         });
 
         this.installButton.connect('clicked', async () => {
@@ -131,7 +97,6 @@ export class AppCardCarousel {
                     } else {
                         await this.packagesService.installDebianPackage(app.id);
                     }
-                    this.installButton.set_label('Installed');
                     this.installButton.set_sensitive(false);
                 } catch (error) {
                     console.error(`Error installing ${app.id}:`, error);
@@ -139,8 +104,7 @@ export class AppCardCarousel {
             }
         });
 
-        contentBox.append(this.installButton);
-        card.append(contentBox);
+        card.append(this.installButton);
 
         return card;
     }
@@ -150,7 +114,6 @@ export class AppCardCarousel {
     }
 
     public updateInstallState(installed: boolean): void {
-        this.installButton.set_label(installed ? 'Installed' : 'Install');
         this.installButton.set_sensitive(!installed);
     }
 }
