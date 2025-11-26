@@ -1,0 +1,135 @@
+import Gtk from '@girs/gtk-4.0';
+import Adw from '@girs/adw-1';
+import { UpdatesService } from '../services/updates-service';
+import { UtilsService } from '../services/utils-service';
+import { UpdatesData } from '../interfaces/update';
+
+export class UpdatesComponent {
+    private container: Gtk.Box;
+    private updatesService: UpdatesService;
+    private utils: UtilsService;
+    private listBox!: Gtk.ListBox;
+    private dataCallback!: (data: UpdatesData) => void;
+    private updateAllButton!: Gtk.Button;
+
+    constructor() {
+        this.updatesService = UpdatesService.instance;
+        this.utils = UtilsService.instance;
+        
+        this.container = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 12,
+            margin_start: 24,
+            margin_end: 24,
+            margin_top: 24,
+            margin_bottom: 24,
+        });
+
+        const headerBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 12,
+            margin_bottom: 12,
+        });
+
+        const titleLabel = new Gtk.Label({
+            label: '<span size="x-large" weight="bold">Available Updates</span>',
+            use_markup: true,
+            halign: Gtk.Align.START,
+            hexpand: true,
+        });
+        headerBox.append(titleLabel);
+
+        this.updateAllButton = new Gtk.Button({
+            label: 'Update All',
+            css_classes: ['suggested-action'],
+        });
+
+        this.updateAllButton.connect('clicked', () => {
+            this.updatesService.updateAll();
+        });
+
+        headerBox.append(this.updateAllButton);
+        this.container.append(headerBox);
+
+        const scrolled = new Gtk.ScrolledWindow({
+            vexpand: true,
+            hexpand: true,
+        });
+
+        this.listBox = new Gtk.ListBox({
+            selection_mode: Gtk.SelectionMode.NONE,
+        });
+        this.listBox.add_css_class('boxed-list');
+
+        scrolled.set_child(this.listBox);
+        this.container.append(scrolled);
+
+        this.dataCallback = this.onDataUpdate.bind(this);
+        this.updatesService.subscribeToUpdates(this.dataCallback);
+    }
+
+    private onDataUpdate(data: UpdatesData): void {
+        this.displayUpdates(data.updates);
+        this.updateAllButton.set_sensitive(data.totalCount > 0);
+    }
+
+    private displayUpdates(updates: any[]): void {
+        while (this.listBox.get_first_child()) {
+            const child = this.listBox.get_first_child();
+            if (child) {
+                this.listBox.remove(child);
+            }
+        }
+
+        if (updates.length === 0) {
+            const emptyLabel = new Gtk.Label({
+                label: 'All applications are up to date',
+                css_classes: ['dim-label'],
+                margin_top: 48,
+                margin_bottom: 48,
+            });
+            this.listBox.append(emptyLabel);
+            return;
+        }
+
+        for (const update of updates) {
+            const row = this.createUpdateRow(update);
+            this.listBox.append(row);
+        }
+    }
+
+    private createUpdateRow(update: any): Adw.ActionRow {
+        const row = new Adw.ActionRow({
+            title: update.appName,
+            subtitle: `${update.currentVersion} → ${update.newVersion} • ${this.utils.formatBytes(update.size)}`,
+        });
+
+        const icon = new Gtk.Image({
+            icon_name: update.icon || 'application-x-executable',
+            pixel_size: 48,
+        });
+        row.add_prefix(icon);
+
+        const updateButton = new Gtk.Button({
+            label: 'Update',
+            valign: Gtk.Align.CENTER,
+            css_classes: ['suggested-action'],
+        });
+
+        updateButton.connect('clicked', () => {
+            this.updatesService.updateApp(update.appId);
+        });
+
+        row.add_suffix(updateButton);
+
+        return row;
+    }
+
+    public getWidget(): Gtk.Box {
+        return this.container;
+    }
+
+    public destroy(): void {
+        this.updatesService.unsubscribe(this.dataCallback);
+    }
+}

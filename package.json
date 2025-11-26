@@ -1,0 +1,42 @@
+{
+  "name": "obision-store",
+  "version": "1.0.0",
+  "description": "Application store manager for GNOME",
+  "main": "builddir/main.js",
+  "scripts": {
+    "build": "node scripts/build.js && glib-compile-schemas data/",
+    "dev": "tsc --watch",
+    "start": "npm run build && GSETTINGS_SCHEMA_DIR=builddir/data ./builddir/main.js",
+    "clean": "rm -rf builddir && rm -rf mesonbuilddir",
+    "meson-setup": "meson setup mesonbuilddir --prefix=/usr",
+    "meson-compile": "meson compile -C mesonbuilddir",
+    "meson-install": "npm run build && npm run meson-setup && npm run meson-compile && cd mesonbuilddir && meson install",
+    "meson-uninstall": "cd mesonbuilddir && ninja uninstall && cd .. && npm run meson-clean",
+    "meson-clean": "rm -rf mesonbuilddir builddir"
+  },
+  "keywords": [
+    "gnome",
+    "gtk",
+    "gjs",
+    "typescript",
+    "store",
+    "obision"
+  ],
+  "author": "Jose Francisco Gonzalez",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@girs/adw-1": "^1.9.0-4.0.0-beta.38",
+    "@girs/gio-2.0": "^2.86.0-4.0.0-beta.38",
+    "@girs/gjs": "^4.0.0-beta.38",
+    "@girs/glib-2.0": "^2.86.0-4.0.0-beta.38",
+    "@girs/gobject-2.0": "^2.86.0-4.0.0-beta.38",
+    "@girs/gtk-4.0": "^4.20.1-4.0.0-beta.38"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.23",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

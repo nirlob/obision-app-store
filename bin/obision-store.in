@@ -1,0 +1,10 @@
+#!/usr/bin/env gjs
+const { Gio } = imports.gi;
+const app = Gio.File.new_for_path('/usr/share/com.obision.ObisionStore/main.js');
+if (!app.query_exists(null)) {
+    print('Error: Application not properly installed');
+    imports.system.exit(1);
+}
+imports.searchPath.unshift('/usr/share/com.obision.ObisionStore');
+const main = imports.main;
+main.main(ARGV);

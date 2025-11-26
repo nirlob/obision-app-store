@@ -1,0 +1,14 @@
+/* Custom styles for Obision Store */
+
+.card {
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.navigation-sidebar row {
+    padding: 6px;
+}
+
+.navigation-sidebar row:selected {
+    background-color: alpha(currentColor, 0.1);
+}

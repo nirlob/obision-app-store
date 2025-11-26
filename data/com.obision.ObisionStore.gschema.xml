@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.obision.ObisionStore" path="/com/obision/ObisionStore/">
+    <key name="window-width" type="i">
+      <default>1200</default>
+      <summary>Window width</summary>
+      <description>The width of the main window</description>
+    </key>
+    <key name="window-height" type="i">
+      <default>800</default>
+      <summary>Window height</summary>
+      <description>The height of the main window</description>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Window maximized state</summary>
+      <description>Whether the window is maximized</description>
+    </key>
+    <key name="auto-update-check" type="b">
+      <default>true</default>
+      <summary>Auto update check</summary>
+      <description>Automatically check for application updates</description>
+    </key>
+    <key name="update-interval" type="i">
+      <default>30</default>
+      <summary>Update check interval</summary>
+      <description>Update check interval in minutes</description>
+    </key>
+  </schema>
+</schemalist>
