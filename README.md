@@ -39,6 +39,8 @@ A modern GNOME application store manager built with GTK4, Libadwaita, and TypeSc
 - Libadwaita 1.x
 - GJS (GNOME JavaScript)
 
+**Debian packages**: `sudo apt install nodejs npm gjs libgtk-4-dev libadwaita-1-dev meson`
+
 ### Setup
 
 ```bash
