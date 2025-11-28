@@ -24,6 +24,27 @@ install_data(
 )
 
 # Install GSettings schema
+
+# Install icons
+install_data('data/icons/hicolor/scalable/apps/' + application_id + '.svg',
+  install_dir: datadir / 'icons' / 'hicolor' / 'scalable' / 'apps'
+)
+
+install_data('data/icons/hicolor/48x48/apps/' + application_id + '.png',
+  install_dir: datadir / 'icons' / 'hicolor' / '48x48' / 'apps'
+)
+
+install_data('data/icons/hicolor/64x64/apps/' + application_id + '.png',
+  install_dir: datadir / 'icons' / 'hicolor' / '64x64' / 'apps'
+)
+
+install_data('data/icons/hicolor/128x128/apps/' + application_id + '.png',
+  install_dir: datadir / 'icons' / 'hicolor' / '128x128' / 'apps'
+)
+
+install_data('data/icons/hicolor/256x256/apps/' + application_id + '.png',
+  install_dir: datadir / 'icons' / 'hicolor' / '256x256' / 'apps'
+)
 install_data(
   'data' / application_id + '.gschema.xml',
   install_dir: schemadir
