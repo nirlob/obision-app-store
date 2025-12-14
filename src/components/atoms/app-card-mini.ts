@@ -10,84 +10,53 @@ export interface AppCardMiniOptions {
 
 export class AppCardMini {
     private card: Gtk.Box;
-    private installButton!: Gtk.Button;
+    private appIcon: Gtk.Image;
+    private nameLabel: Gtk.Label;
+    private summaryLabel: Gtk.Label;
+    private installButton: Gtk.Button;
     private packagesService: PackagesService;
 
     constructor(options: AppCardMiniOptions) {
         this.packagesService = PackagesService.instance;
-        this.card = this.createCard(options);
+        
+        // Load UI from file
+        const builder = new Gtk.Builder();
+        builder.add_from_resource('/com/obision/ObisionStore/ui/atoms/app-card-mini.ui');
+        
+        this.card = builder.get_object('AppCardMini') as Gtk.Box;
+        this.appIcon = builder.get_object('app_icon') as Gtk.Image;
+        this.nameLabel = builder.get_object('name_label') as Gtk.Label;
+        this.summaryLabel = builder.get_object('summary_label') as Gtk.Label;
+        this.installButton = builder.get_object('install_button') as Gtk.Button;
+        
+        // Setup with data
+        this.setupCard(options);
     }
 
-    private createCard(options: AppCardMiniOptions): Gtk.Box {
+    private setupCard(options: AppCardMiniOptions): void {
         const { app } = options;
 
-        const card = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 12,
-            hexpand: true,
-            vexpand: false,
-            margin_top: 5,
-            margin_bottom: 5,
-            margin_start: 5,
-            margin_end: 5,
-            css_classes: ['card'],
-        });
-
-        // Icon
+        // Set icon
         const iconName = app.icon || 'emblem-system-symbolic';
-        const icon = new Gtk.Image({
-            pixel_size: 48,
-        });
-        
         if (iconName.startsWith('file://')) {
             const file = Gio.File.new_for_uri(iconName);
             const gicon = Gio.FileIcon.new(file);
-            icon.set_from_gicon(gicon);
+            this.appIcon.set_from_gicon(gicon);
         } else {
             const gicon = Gio.ThemedIcon.new(iconName);
-            icon.set_from_gicon(gicon);
+            this.appIcon.set_from_gicon(gicon);
         }
-        
-        card.append(icon);
-
-        // Content
-        const contentBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 4,
-            hexpand: true,
-            valign: Gtk.Align.CENTER,
-        });
 
         // Capitalize first letter of name
         const capitalizedName = app.name.charAt(0).toUpperCase() + app.name.slice(1);
-        const nameLabel = new Gtk.Label({
-            label: capitalizedName,
-            halign: Gtk.Align.START,
-            ellipsize: 3, // Pango.EllipsizeMode.END
-        });
-        nameLabel.add_css_class('heading');
-        contentBox.append(nameLabel);
+        this.nameLabel.set_label(capitalizedName);
 
         // Capitalize first letter of summary
         const capitalizedSummary = app.summary.charAt(0).toUpperCase() + app.summary.slice(1);
-        const summaryLabel = new Gtk.Label({
-            label: capitalizedSummary,
-            halign: Gtk.Align.START,
-            ellipsize: 3, // Pango.EllipsizeMode.END
-        });
-        summaryLabel.add_css_class('caption');
-        summaryLabel.add_css_class('dim-label');
-        contentBox.append(summaryLabel);
+        this.summaryLabel.set_label(capitalizedSummary);
 
-        card.append(contentBox);
-
-        // Install button with play icon
-        this.installButton = new Gtk.Button({
-            icon_name: 'media-playback-start-symbolic',
-            sensitive: !app.installed,
-            css_classes: ['circular', 'suggested-action'],
-            valign: Gtk.Align.CENTER,
-        });
+        // Setup install button
+        this.installButton.set_sensitive(!app.installed);
 
         this.installButton.connect('clicked', async () => {
             if (!app.installed) {
@@ -103,10 +72,6 @@ export class AppCardMini {
                 }
             }
         });
-
-        card.append(this.installButton);
-
-        return card;
     }
 
     public getWidget(): Gtk.Widget {

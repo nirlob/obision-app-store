@@ -8,5 +8,7 @@
     <file>ui/installed.ui</file>
     <file>ui/updates.ui</file>
     <file>ui/app-details.ui</file>
+    <file>ui/atoms/app-card-carousel.ui</file>
+    <file>ui/atoms/app-card-mini.ui</file>
   </gresource>
 </gresources>

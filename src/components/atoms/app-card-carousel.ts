@@ -10,118 +10,55 @@ export interface AppCardCarouselOptions {
 
 export class AppCardCarousel {
     private card: Gtk.Box;
-    private installButton!: Gtk.Button;
+    private appIcon: Gtk.Image;
+    private nameLabel: Gtk.Label;
+    private summaryLabel: Gtk.Label;
+    private installButton: Gtk.Button;
     private packagesService: PackagesService;
 
     constructor(options: AppCardCarouselOptions) {
         this.packagesService = PackagesService.instance;
-        this.card = this.createCard(options);
+        
+        // Load UI from file
+        const builder = new Gtk.Builder();
+        builder.add_from_resource('/com/obision/ObisionStore/ui/atoms/app-card-carousel.ui');
+        
+        this.card = builder.get_object('AppCardCarousel') as Gtk.Box;
+        this.appIcon = builder.get_object('app_icon') as Gtk.Image;
+        this.nameLabel = builder.get_object('name_label') as Gtk.Label;
+        this.summaryLabel = builder.get_object('summary_label') as Gtk.Label;
+        this.installButton = builder.get_object('install_button') as Gtk.Button;
+        
+        // Setup with data
+        this.setupCard(options);
     }
 
-    private createCard(options: AppCardCarouselOptions): Gtk.Box {
+    private setupCard(options: AppCardCarouselOptions): void {
         const { app } = options;
 
-        const card = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 0,
-            hexpand: true,
-            vexpand: true,
-            valign: Gtk.Align.FILL,
-            halign: Gtk.Align.FILL,
-        });
-
-        // Icon section with fixed width
-        const iconBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            valign: Gtk.Align.CENTER,
-            halign: Gtk.Align.CENTER,
-            width_request: 180,
-            hexpand: false,
-        });
-
+        // Set icon
         const iconName = app.icon || 'emblem-system-symbolic';
-        const icon = new Gtk.Image({
-            pixel_size: 140,
-        });
-        
         if (iconName.startsWith('file://')) {
             const file = Gio.File.new_for_uri(iconName);
             const gicon = Gio.FileIcon.new(file);
-            icon.set_from_gicon(gicon);
+            this.appIcon.set_from_gicon(gicon);
         } else {
             // Use GThemedIcon for themed icons (automatically finds color version)
             const gicon = Gio.ThemedIcon.new(iconName);
-            icon.set_from_gicon(gicon);
+            this.appIcon.set_from_gicon(gicon);
         }
-        
-        iconBox.append(icon);
-        card.append(iconBox);
-
-        // Content section
-        const contentBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 0,
-            hexpand: true,
-            vexpand: true,
-            valign: Gtk.Align.FILL,
-            margin_end: 16,
-        });
-
-        // Info section - centered vertically
-        const infoBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 6,
-            valign: Gtk.Align.CENTER,
-            vexpand: true,
-        });
 
         // Capitalize first letter of name
         const capitalizedName = app.name.charAt(0).toUpperCase() + app.name.slice(1);
-        const nameLabel = new Gtk.Label({
-            label: `<span size="xx-large" weight="bold">${capitalizedName}</span>`,
-            use_markup: true,
-            halign: Gtk.Align.START,
-            valign: Gtk.Align.START,
-            wrap: true,
-            max_width_chars: 35,
-            lines: 1,
-            ellipsize: 3, // Pango.EllipsizeMode.END
-        });
-        infoBox.append(nameLabel);
+        this.nameLabel.set_label(`<span size="xx-large" weight="bold">${capitalizedName}</span>`);
 
         // Capitalize first letter of summary
         const capitalizedSummary = app.summary.charAt(0).toUpperCase() + app.summary.slice(1);
-        const summaryLabel = new Gtk.Label({
-            label: capitalizedSummary,
-            use_markup: false,
-            halign: Gtk.Align.START,
-            valign: Gtk.Align.START,
-            wrap: true,
-            wrap_mode: 2, // Pango.WrapMode.WORD
-            max_width_chars: 40,
-            lines: 2,
-            ellipsize: 3, // Pango.EllipsizeMode.END
-            height_request: 60, // Fixed height for 2 lines
-            xalign: 0,
-            yalign: 0,
-        });
-        summaryLabel.add_css_class('title-4');
-        summaryLabel.add_css_class('dim-label');
-        infoBox.append(summaryLabel);
+        this.summaryLabel.set_label(capitalizedSummary);
 
-        contentBox.append(infoBox);
-
-        // Install button - fixed at bottom right
-        this.installButton = new Gtk.Button({
-            label: app.installed ? 'Installed' : 'Install',
-            sensitive: !app.installed,
-            css_classes: ['suggested-action', 'pill'],
-            width_request: 120,
-            height_request: 40,
-            halign: Gtk.Align.END,
-            valign: Gtk.Align.END,
-            margin_bottom: 12,
-        });
+        // Setup install button
+        this.installButton.set_label(app.installed ? 'Installed' : 'Install');
+        this.installButton.set_sensitive(!app.installed);
 
         this.installButton.connect('clicked', async () => {
             if (!app.installed) {
@@ -138,11 +75,6 @@ export class AppCardCarousel {
                 }
             }
         });
-
-        contentBox.append(this.installButton);
-        card.append(contentBox);
-
-        return card;
     }
 
     public getWidget(): Gtk.Widget {

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  
+  <object class="GtkBox" id="AppCardCarousel">
+    <property name="orientation">horizontal</property>
+    <property name="spacing">0</property>
+    <property name="hexpand">True</property>
+    <property name="vexpand">True</property>
+    <property name="valign">fill</property>
+    <property name="halign">fill</property>
+    
+    <!-- Icon Section -->
+    <child>
+      <object class="GtkBox" id="icon_box">
+        <property name="orientation">vertical</property>
+        <property name="valign">center</property>
+        <property name="halign">center</property>
+        <property name="width-request">180</property>
+        <property name="hexpand">False</property>
+        
+        <child>
+          <object class="GtkImage" id="app_icon">
+            <property name="pixel-size">140</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    
+    <!-- Content Section -->
+    <child>
+      <object class="GtkBox" id="content_box">
+        <property name="orientation">vertical</property>
+        <property name="spacing">0</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="valign">fill</property>
+        <property name="margin-end">16</property>
+        
+        <!-- Info Section -->
+        <child>
+          <object class="GtkBox" id="info_box">
+            <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
+            <property name="valign">center</property>
+            <property name="vexpand">True</property>
+            
+            <!-- App Name -->
+            <child>
+              <object class="GtkLabel" id="name_label">
+                <property name="use-markup">True</property>
+                <property name="halign">start</property>
+                <property name="valign">start</property>
+                <property name="wrap">True</property>
+                <property name="max-width-chars">35</property>
+                <property name="lines">1</property>
+                <property name="ellipsize">end</property>
+              </object>
+            </child>
+            
+            <!-- App Summary -->
+            <child>
+              <object class="GtkLabel" id="summary_label">
+                <property name="use-markup">False</property>
+                <property name="halign">start</property>
+                <property name="valign">start</property>
+                <property name="wrap">True</property>
+                <property name="wrap-mode">word</property>
+                <property name="max-width-chars">40</property>
+                <property name="lines">2</property>
+                <property name="ellipsize">end</property>
+                <property name="height-request">60</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <style>
+                  <class name="title-4"/>
+                  <class name="dim-label"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        
+        <!-- Install Button -->
+        <child>
+          <object class="GtkButton" id="install_button">
+            <property name="width-request">120</property>
+            <property name="height-request">40</property>
+            <property name="halign">end</property>
+            <property name="valign">end</property>
+            <property name="margin-bottom">12</property>
+            <style>
+              <class name="suggested-action"/>
+              <class name="pill"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
