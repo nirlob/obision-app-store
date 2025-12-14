@@ -4,3 +4,7 @@ mesonbuilddir/
 *.log
 .vscode/
 .DS_Store
+
+# Compiled GSettings schemas (generated during build)
+gschemas.compiled
+data/gschemas.compiled
