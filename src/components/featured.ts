@@ -95,152 +95,115 @@ export class FeaturedComponent {
         }
     }
 
-    private loadFeaturedApps(): void {
-        // Featured packages to display in carousel
-        const featuredPackageNames = [
-            'firefox-esr',
-            'gimp',
-            'vlc',
-            'libreoffice',
-            'inkscape',
-            'blender'
-        ];
+    private async loadFeaturedApps(): Promise<void> {
+        try {
+            // Fetch featured apps from different categories using real API queries
+            const categories = [
+                { query: 'browser', limit: 2 },
+                { query: 'graphics', limit: 2 },
+                { query: 'office', limit: 1 },
+                { query: 'video', limit: 1 }
+            ];
 
-        // Popular apps to display in list
-        const popularPackageNames = [
-            'thunderbird',
-            'chromium',
-            'code',
-            'telegram-desktop',
-            'spotify-client',
-            'discord',
-            'audacity',
-            'obs-studio',
-            'krita',
-            'kdenlive',
-            'handbrake',
-            'transmission',
-            'filezilla',
-            'vim',
-            'git',
-            'docker.io',
-            'virtualbox',
-            'qbittorrent',
-            'steam',
-            'wine'
-        ];
-
-        // Store cache keys for subscription
-        for (const packageName of featuredPackageNames) {
-            const cacheKey = this.cacheService.getCacheKey('debian', packageName);
-            this.packageKeys.push(cacheKey);
-        }
-
-        const loadedPackages: PackageInfo[] = [];
-        const popularPackages: PackageInfo[] = [];
-        let index = 0;
-        
-        // Load packages one by one asynchronously
-        const loadNext = () => {
-            if (index >= featuredPackageNames.length) {
-                // All loaded, group in pairs and add to carousel
-                for (let i = 0; i < loadedPackages.length; i += 2) {
-                    const page = new Gtk.Box({
-                        orientation: Gtk.Orientation.HORIZONTAL,
-                        spacing: 12,
-                        homogeneous: false,
-                        hexpand: true,
-                        vexpand: false,
-                        valign: Gtk.Align.START,
-                        margin_start: 0,
-                        margin_end: 0,
-                    });
+            const featuredPackages: PackageInfo[] = [];
+            
+            // Load featured packages from real search results
+            for (const category of categories) {
+                try {
+                    const packages = await this.packagesService.searchDebianPackagesAsync(category.query);
+                    // Take top packages from search results
+                    const topPackages = packages.slice(0, category.limit);
+                    featuredPackages.push(...topPackages);
                     
-                    // Add first card with margin
-                    const card1Box = new Gtk.Box({
+                    // Store cache keys for subscription
+                    for (const pkg of topPackages) {
+                        const cacheKey = this.cacheService.getCacheKey('debian', pkg.name);
+                        if (!this.packageKeys.includes(cacheKey)) {
+                            this.packageKeys.push(cacheKey);
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error loading category ${category.query}:`, error);
+                }
+            }
+
+            // Group featured packages in pairs and add to carousel
+            for (let i = 0; i < featuredPackages.length; i += 2) {
+                const page = new Gtk.Box({
+                    orientation: Gtk.Orientation.HORIZONTAL,
+                    spacing: 12,
+                    homogeneous: false,
+                    hexpand: true,
+                    vexpand: false,
+                    valign: Gtk.Align.START,
+                    margin_start: 0,
+                    margin_end: 0,
+                });
+                
+                // Add first card with margin
+                const card1Box = new Gtk.Box({
+                    orientation: Gtk.Orientation.VERTICAL,
+                    hexpand: true,
+                    margin_end: 6,
+                });
+                const card1 = this.createFeaturedCard(featuredPackages[i]);
+                card1Box.append(card1);
+                page.append(card1Box);
+                
+                // Add second card if exists
+                if (i + 1 < featuredPackages.length) {
+                    const card2Box = new Gtk.Box({
                         orientation: Gtk.Orientation.VERTICAL,
                         hexpand: true,
-                        margin_end: 6,
+                        margin_start: 6,
                     });
-                    const card1 = this.createFeaturedCard(loadedPackages[i]);
-                    card1Box.append(card1);
-                    page.append(card1Box);
-                    
-                    // Add second card if exists
-                    if (i + 1 < loadedPackages.length) {
-                        const card2Box = new Gtk.Box({
-                            orientation: Gtk.Orientation.VERTICAL,
-                            hexpand: true,
-                            margin_start: 6,
-                        });
-                        const card2 = this.createFeaturedCard(loadedPackages[i + 1]);
-                        card2Box.append(card2);
-                        page.append(card2Box);
-                    }
-                    
-                    this.carousel.append(page);
+                    const card2 = this.createFeaturedCard(featuredPackages[i + 1]);
+                    card2Box.append(card2);
+                    page.append(card2Box);
                 }
                 
-                // Now load popular apps
-                this.loadPopularApps(popularPackageNames);
-                this.container.set_visible_child_name('content');
-                return GLib.SOURCE_REMOVE;
+                this.carousel.append(page);
             }
             
-            const packageName = featuredPackageNames[index];
-            index++;
+            // Load popular apps from different categories
+            await this.loadPopularApps();
             
-            // Load package asynchronously
-            this.packagesService.searchDebianPackagesAsync(packageName).then(packages => {
-                if (packages.length > 0) {
-                    loadedPackages.push(packages[0]);
-                }
-                // Schedule next package
-                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
-            }).catch(error => {
-                console.error(`Error loading package ${packageName}:`, error);
-                // Continue with next package even on error
-                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
-            });
-            
-            return GLib.SOURCE_REMOVE;
-        };
-        
-        // Start loading
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
+            this.container.set_visible_child_name('content');
+        } catch (error) {
+            console.error('Error loading featured apps:', error);
+            this.container.set_visible_child_name('content');
+        }
     }
 
-    private loadPopularApps(packageNames: string[]): void {
-        const loadedApps: PackageInfo[] = [];
-        let index = 0;
-        
-        const loadNext = () => {
-            if (index >= packageNames.length) {
-                // All loaded, arrange in grid with 5 apps per row
-                this.arrangeAppsInGrid(loadedApps);
-                return GLib.SOURCE_REMOVE;
-            }
-            
-            const packageName = packageNames[index];
-            index++;
-            
-            this.packagesService.searchDebianPackagesAsync(packageName).then(packages => {
-                if (packages.length > 0) {
-                    loadedApps.push(packages[0]);
+    private async loadPopularApps(): Promise<void> {
+        try {
+            // Fetch popular apps from different search queries
+            const searchQueries = [
+                'editor',
+                'media',
+                'development',
+                'network',
+                'utility'
+            ];
+
+            const popularApps: PackageInfo[] = [];
+
+            for (const query of searchQueries) {
+                try {
+                    const packages = await this.packagesService.searchDebianPackagesAsync(query);
+                    // Take top 4 apps from each category
+                    popularApps.push(...packages.slice(0, 4));
+                } catch (error) {
+                    console.error(`Error loading popular apps for ${query}:`, error);
                 }
-                // Schedule next package
-                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
-            }).catch(error => {
-                console.error(`Error loading package ${packageName}:`, error);
-                // Continue with next package even on error
-                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
-            });
-            
-            return GLib.SOURCE_REMOVE;
-        };
-        
-        // Start loading
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, loadNext);
+            }
+
+            // Limit to 20 apps total
+            const limitedApps = popularApps.slice(0, 20);
+            this.arrangeAppsInGrid(limitedApps);
+        } catch (error) {
+            console.error('Error loading popular apps:', error);
+        }
     }
 
     private arrangeAppsInGrid(apps: PackageInfo[]): void {
@@ -265,11 +228,8 @@ export class FeaturedComponent {
     private onCacheUpdate(key: string, data: PackageInfo[]): void {
         // Only reload if component is currently active/visible
         if (!this.isActive) {
-            console.log(`Featured component received cache update for ${key}, but component is not active - skipping reload`);
             return;
         }
-        
-        console.log(`Featured component received cache update for ${key}, reloading carousel...`);
         
         // Clear current carousel
         let child = this.carousel.get_first_child();

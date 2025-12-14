@@ -6,7 +6,7 @@
   <object class="AdwApplicationWindow" id="ObisionStoreWindow">
     <property name="default-width">1200</property>
     <property name="default-height">800</property>
-    <property name="title">Obision Store</property>
+    <property name="title">Store</property>
     
     <property name="content">
       <object class="AdwBreakpoint">
@@ -22,7 +22,7 @@
         
         <property name="sidebar">
           <object class="AdwNavigationPage" id="sidebar_page">
-            <property name="title">Obision Store</property>
+            <property name="title">Store</property>
             <property name="child">
               <object class="AdwToolbarView">
                 <child type="top">
@@ -100,33 +100,6 @@
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="label">Categories</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </property>
-                                  </object>
-                                </child>
-                                
-                                <!-- Installed Button -->
-                                <child>
-                                  <object class="GtkToggleButton" id="nav_installed">
-                                    <property name="height-request">100</property>
-                                    <property name="group">nav_featured</property>
-                                    <property name="child">
-                                      <object class="GtkBox">
-                                        <property name="orientation">vertical</property>
-                                        <property name="spacing">6</property>
-                                        <property name="halign">center</property>
-                                        <property name="valign">center</property>
-                                        <child>
-                                          <object class="GtkImage">
-                                            <property name="icon-name">emblem-ok-symbolic</property>
-                                            <property name="pixel-size">24</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel">
-                                            <property name="label">Installed</property>
                                           </object>
                                         </child>
                                       </object>

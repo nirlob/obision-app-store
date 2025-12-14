@@ -5,7 +5,6 @@ import GLib from '@girs/glib-2.0';
 import { FeaturedComponent } from './components/featured';
 import { CategoriesComponent } from './components/categories';
 import { AppDetailsComponent } from './components/app-details';
-import { InstalledComponent } from './components/installed';
 import { UpdatesComponent } from './components/updates';
 
 class ObisionStoreApplication {
@@ -16,7 +15,6 @@ class ObisionStoreApplication {
     private featuredComponent!: FeaturedComponent;
     private categoriesComponent!: CategoriesComponent;
     private appDetailsComponent!: AppDetailsComponent;
-    private installedComponent!: InstalledComponent;
     private updatesComponent!: UpdatesComponent;
 
     constructor() {
@@ -83,14 +81,12 @@ class ObisionStoreApplication {
         this.featuredComponent = new FeaturedComponent();
         this.categoriesComponent = new CategoriesComponent();
         this.appDetailsComponent = new AppDetailsComponent();
-        this.installedComponent = new InstalledComponent();
         this.updatesComponent = new UpdatesComponent();
 
         // Add pages to stack
         this.stack.add_named(this.featuredComponent.getWidget(), 'featured');
         this.stack.add_named(this.categoriesComponent.getWidget(), 'categories');
         this.stack.add_named(this.appDetailsComponent.getWidget(), 'details');
-        this.stack.add_named(this.installedComponent.getWidget(), 'installed');
         this.stack.add_named(this.updatesComponent.getWidget(), 'updates');
 
         this.stack.set_visible_child_name('featured');
@@ -114,7 +110,6 @@ class ObisionStoreApplication {
         // Deactivate all components
         this.featuredComponent.deactivate();
         this.categoriesComponent.deactivate();
-        this.installedComponent.deactivate();
         this.updatesComponent.deactivate();
         
         // Activate the visible component
@@ -124,9 +119,6 @@ class ObisionStoreApplication {
                 break;
             case 'categories':
                 this.categoriesComponent.activate();
-                break;
-            case 'installed':
-                this.installedComponent.activate();
                 break;
             case 'updates':
                 this.updatesComponent.activate();
@@ -139,13 +131,11 @@ class ObisionStoreApplication {
     private setupNavigation(navigationSidebar: Gtk.Box, builder: Gtk.Builder): void {
         const navFeatured = builder.get_object('nav_featured') as Gtk.ToggleButton;
         const navCategories = builder.get_object('nav_categories') as Gtk.ToggleButton;
-        const navInstalled = builder.get_object('nav_installed') as Gtk.ToggleButton;
         const navUpdates = builder.get_object('nav_updates') as Gtk.ToggleButton;
 
         const buttonPageMap = new Map<Gtk.ToggleButton, string>();
         buttonPageMap.set(navFeatured, 'featured');
         buttonPageMap.set(navCategories, 'categories');
-        buttonPageMap.set(navInstalled, 'installed');
         buttonPageMap.set(navUpdates, 'updates');
 
         const stack = this.stack;

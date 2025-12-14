@@ -134,11 +134,9 @@ export class CategoriesComponent {
     private onCacheUpdate(key: string, data: PackageInfo[]): void {
         // Only reload if component is currently active/visible
         if (!this.isActive) {
-            console.log(`Categories component received cache update for ${key}, but component is not active - skipping reload`);
             return;
         }
         
-        console.log(`Categories component received cache update for ${key}, reloading data...`);
         this.reloadCategories();
     }
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  
+  <object class="GtkButton" id="CategoryBigButton">
+    <property name="hexpand">True</property>
+    <property name="vexpand">False</property>
+    <property name="height-request">140</property>
+    <style>
+      <class name="card"/>
+      <class name="category-card"/>
+    </style>
+    
+    <property name="child">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="margin-top">16</property>
+        <property name="margin-bottom">16</property>
+        <property name="margin-start">16</property>
+        <property name="margin-end">16</property>
+        
+        <!-- Category Icon -->
+        <child>
+          <object class="GtkImage" id="category_icon">
+            <property name="pixel-size">64</property>
+            <property name="halign">center</property>
+          </object>
+        </child>
+        
+        <!-- Category Name -->
+        <child>
+          <object class="GtkLabel" id="category_name">
+            <property name="halign">center</property>
+            <property name="wrap">False</property>
+            <property name="ellipsize">end</property>
+            <style>
+              <class name="heading"/>
+            </style>
+          </object>
+        </child>
+        
+        <!-- App Count -->
+        <child>
+          <object class="GtkLabel" id="app_count">
+            <property name="halign">center</property>
+            <style>
+              <class name="caption"/>
+              <class name="dim-label"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </property>
+  </object>
+</interface>

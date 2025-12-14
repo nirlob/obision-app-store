@@ -52,7 +52,6 @@ export class CacheService {
                     const decoder = new TextDecoder('utf-8');
                     const json = decoder.decode(contents);
                     this.cache = JSON.parse(json);
-                    console.log(`Cache loaded from ${this.cacheFile}`);
                 }
             }
         } catch (error) {
@@ -76,7 +75,6 @@ export class CacheService {
                     Gio.FileCreateFlags.REPLACE_DESTINATION,
                     null
                 );
-                console.log(`Cache saved to ${this.cacheFile}`);
             } catch (error) {
                 console.error('Error saving cache:', error);
             }
@@ -100,7 +98,6 @@ export class CacheService {
             return null;
         }
 
-        console.log(`Cache hit for key: ${key}`);
         return entry.data;
     }
 
@@ -114,7 +111,6 @@ export class CacheService {
         };
         
         this.saveCacheAsync();
-        console.log(`Cache set for key: ${key} (${data.length} packages)`);
         
         // Notify subscribers if this is an update
         if (isUpdate) {
@@ -127,7 +123,6 @@ export class CacheService {
             this.updateCallbacks.set(key, []);
         }
         this.updateCallbacks.get(key)!.push(callback);
-        console.log(`Subscribed to cache updates for key: ${key}`);
     }
 
     public unsubscribe(key: string, callback: CacheUpdateCallback): void {

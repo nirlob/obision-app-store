@@ -29,28 +29,28 @@ function cleanJSContent(content) {
     return content
         // Remove all import statements
         .replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, '')
-        
+
         // Remove export statements
         .replace(/^export\s+{[^}]*};?\s*$/gm, '')
         .replace(/^export\s+/gm, '')
-        
+
         // Remove 'use strict'
         .replace(/["']use strict["'];?\s*/g, '')
-        
+
         // Remove Object.defineProperty exports
         .replace(/Object\.defineProperty\(exports,\s*"__esModule",\s*\{\s*value:\s*true\s*\}\);?\s*/g, '')
-        
+
         // Remove exports assignments
         .replace(/exports\.\w+\s*=\s*void 0;\s*/g, '')
         .replace(/exports\.\w+\s*=\s*\w+;\s*/g, '')
-        
+
         // Clean up service references
         .replace(/settings_service_1\.SettingsService/g, 'SettingsService')
         .replace(/utils_service_1\.UtilsService/g, 'UtilsService')
         .replace(/apps_service_1\.AppsService/g, 'AppsService')
         .replace(/categories_service_1\.CategoriesService/g, 'CategoriesService')
         .replace(/updates_service_1\.UpdatesService/g, 'UpdatesService')
-        
+
         // Remove other artifacts
         .replace(/\s*void 0;\s*\n?/g, '')
         .replace(/^\s*\n/gm, '')
@@ -178,10 +178,36 @@ if (fs.existsSync(cacheServiceFile)) {
     combinedContent += content + '\n';
 }
 
-// Add PackagesService
+// Add DebianService
+const debianServiceFile = path.join(BUILD_DIR, 'services', 'debian-service.js');
+if (fs.existsSync(debianServiceFile)) {
+    console.log('📋 Adding DebianService service...');
+    let content = fs.readFileSync(debianServiceFile, 'utf8');
+    const classStartIndex = content.indexOf('class DebianService {');
+    if (classStartIndex !== -1) {
+        content = content.substring(classStartIndex);
+    }
+    content = cleanJSContent(content);
+    combinedContent += content + '\n';
+}
+
+// Add FlatpakService
+const flatpakServiceFile = path.join(BUILD_DIR, 'services', 'flatpak-service.js');
+if (fs.existsSync(flatpakServiceFile)) {
+    console.log('📋 Adding FlatpakService service...');
+    let content = fs.readFileSync(flatpakServiceFile, 'utf8');
+    const classStartIndex = content.indexOf('class FlatpakService {');
+    if (classStartIndex !== -1) {
+        content = content.substring(classStartIndex);
+    }
+    content = cleanJSContent(content);
+    combinedContent += content + '\n';
+}
+
+// Add PackagesService (coordinator)
 const packagesServiceFile = path.join(BUILD_DIR, 'services', 'packages-service.js');
 if (fs.existsSync(packagesServiceFile)) {
-    console.log('📋 Adding PackagesService service...');
+    console.log('📋 Adding PackagesService service (coordinator)...');
     let content = fs.readFileSync(packagesServiceFile, 'utf8');
     const classStartIndex = content.indexOf('class PackagesService {');
     if (classStartIndex !== -1) {
@@ -197,7 +223,7 @@ if (fs.existsSync(atomsDir)) {
     const atomicComponents = fs.readdirSync(atomsDir).filter(file => file.endsWith('.js'));
     for (const atomFile of atomicComponents) {
         const atomPath = path.join(atomsDir, atomFile);
-        const atomName = atomFile.replace('.js', '').split('-').map(word => 
+        const atomName = atomFile.replace('.js', '').split('-').map(word =>
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join('');
         console.log(`📋 Adding ${atomName} atomic component...`);
@@ -216,9 +242,9 @@ const components = ['featured', 'categories', 'app-details', 'installed', 'updat
 for (const component of components) {
     const componentFile = path.join(BUILD_DIR, 'components', `${component}.js`);
     if (fs.existsSync(componentFile)) {
-        const componentName = component.split('-').map((word, index) => 
-            index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : 
-            word.charAt(0).toUpperCase() + word.slice(1)
+        const componentName = component.split('-').map((word, index) =>
+            index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) :
+                word.charAt(0).toUpperCase() + word.slice(1)
         ).join('');
         console.log(`📋 Adding ${componentName}Component...`);
         let content = fs.readFileSync(componentFile, 'utf8');
@@ -272,7 +298,7 @@ if (fs.existsSync(DATA_DIR)) {
             fs.copyFileSync(src, dest);
         }
     };
-    
+
     copyRecursive(DATA_DIR, dataBuildDir);
 }
 

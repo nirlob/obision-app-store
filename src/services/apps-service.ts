@@ -1,10 +1,12 @@
 import GLib from "@girs/glib-2.0";
 import { UtilsService } from "./utils-service";
+import { PackagesService } from "./packages-service";
 import { Application, AppsData } from "../interfaces/application";
 
 export class AppsService {
     private static _instance: AppsService;
     private utils: UtilsService;
+    private packagesService: PackagesService;
     private dataCallbacks: Array<(data: AppsData) => void> = [];
     private apps: Application[] = [];
     private currentFilter: string = '';
@@ -12,7 +14,9 @@ export class AppsService {
 
     private constructor() {
         this.utils = UtilsService.instance;
+        this.packagesService = PackagesService.instance;
         this.loadMockData();
+        this.loadRealAppsFromAPI();
     }
 
     public static get instance(): AppsService {
@@ -177,5 +181,41 @@ export class AppsService {
                 downloads: 10000000
             }
         ];
+    }
+
+    private async loadRealAppsFromAPI(): Promise<void> {
+        try {
+            // Wait for AppStream cache to be ready
+            await this.packagesService.waitForAppStreamCache();
+            
+            // Get available categories from apt
+            const categories = await this.packagesService.getAvailableCategories();
+            console.log(categories.join(', '));
+            console.log(`\nTotal: ${categories.length} categories\n`);
+            
+            // Search for popular packages
+            const searchQueries = ['editor', 'browser', 'media', 'office', 'development'];
+            const allPackages = [];
+            
+            for (const query of searchQueries) {
+                const packages = await this.packagesService.searchDebianPackagesAsync(query);
+                allPackages.push(...packages);
+                
+                // Stop if we have enough
+                if (allPackages.length >= 20) {
+                    break;
+                }
+            }
+            
+            // Get first 20 unique packages
+            const uniquePackages = allPackages
+                .filter((pkg, index, self) => 
+                    index === self.findIndex(p => p.id === pkg.id)
+                )
+                .slice(0, 20);
+            
+        } catch (error) {
+            console.error('Error loading apps from API:', error);
+        }
     }
 }
