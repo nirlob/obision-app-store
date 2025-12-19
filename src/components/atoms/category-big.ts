@@ -21,7 +21,7 @@ export class CategoryBig {
         
         // Load UI from file
         const builder = new Gtk.Builder();
-        builder.add_from_resource('/com/obision/ObisionAppStore/ui/atoms/category-big.ui');
+        builder.add_from_resource('/obision/app/store/ui/atoms/category-big.ui');
         
         this.button = builder.get_object('CategoryBigButton') as Gtk.Button;
         this.categoryIcon = builder.get_object('category_icon') as Gtk.Image;

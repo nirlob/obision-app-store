@@ -1,6 +1,6 @@
 project('obision-app-store', version: '1.0.0', meson_version: '>= 0.59.0')
 
-application_id = 'com.obision.ObisionAppStore'
+application_id = 'obision.app.store'
 app_name = 'obision-app-store'
 
 prefix = get_option('prefix')

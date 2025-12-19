@@ -19,7 +19,7 @@ class ObisionAppStoreApplication {
 
     constructor() {
         this.application = new Adw.Application({
-            application_id: 'com.obision.ObisionAppStore',
+            application_id: 'obision.app.store',
             flags: Gio.ApplicationFlags.FLAGS_NONE,
         });
 
@@ -32,7 +32,7 @@ class ObisionAppStoreApplication {
         
         // Register resources
         try {
-            const resource = Gio.Resource.load('builddir/com.obision.ObisionAppStore.gresource');
+            const resource = Gio.Resource.load('builddir/obision.app.store.gresource');
             Gio.resources_register(resource);
         } catch (e) {
             console.warn('Could not load GResource:', e);
@@ -56,7 +56,7 @@ class ObisionAppStoreApplication {
         // Load UI from file
         const builder = new Gtk.Builder();
         try {
-            builder.add_from_resource('/com/obision/ObisionAppStore/ui/main.ui');
+            builder.add_from_resource('/obision/app/store/ui/main.ui');
         } catch (e) {
             console.error('Error loading UI:', e);
             return;
@@ -156,7 +156,7 @@ class ObisionAppStoreApplication {
     private loadCustomCSS(): void {
         const cssProvider = new Gtk.CssProvider();
         try {
-            cssProvider.load_from_resource('/com/obision/ObisionAppStore/style.css');
+            cssProvider.load_from_resource('/obision/app/store/style.css');
         } catch (e) {
             try {
                 cssProvider.load_from_path('data/style.css');

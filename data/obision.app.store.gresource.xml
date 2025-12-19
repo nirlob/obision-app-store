@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/com/obision/ObisionAppStore">
+  <gresource prefix="/obision/app/store">
     <file compressed="true">style.css</file>
     <file>ui/main.ui</file>
     <file>ui/featured.ui</file>

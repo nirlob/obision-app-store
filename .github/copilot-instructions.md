@@ -40,10 +40,10 @@ Components implement `activate()`/`deactivate()` to manage subscriptions efficie
 Components use GTK Builder to load `.ui` files from GResources:
 ```typescript
 const builder = new Gtk.Builder();
-builder.add_from_resource('/com/obision/ObisionAppStore/ui/featured.ui');
+builder.add_from_resource('/obision/app/store/ui/featured.ui');
 const widget = builder.get_object('WidgetId') as Gtk.Widget;
 ```
-**Critical**: UI files must be registered in `data/com.obision.ObisionAppStore.gresource.xml` before being accessible.
+**Critical**: UI files must be registered in `data/obision.app.store.gresource.xml` before being accessible.
 
 ## Critical Build Process
 
@@ -77,10 +77,10 @@ npm run meson-uninstall # Remove system installation
 
 ## GResource System
 
-UI files, CSS, and icons are bundled into `com.obision.ObisionAppStore.gresource`:
-- **Definition**: `data/com.obision.ObisionAppStore.gresource.xml` lists all resources
-- **Access pattern**: `/com/obision/ObisionAppStore/ui/main.ui` (prefix + relative path)
-- **Compilation**: `glib-compile-resources` creates binary `builddir/com.obision.ObisionAppStore.gresource`
+UI files, CSS, and icons are bundled into `obision.app.store.gresource`:
+- **Definition**: `data/obision.app.store.gresource.xml` lists all resources
+- **Access pattern**: `/obision/app/store/ui/main.ui` (prefix + relative path)
+- **Compilation**: `glib-compile-resources` creates binary `builddir/obision.app.store.gresource`
 - **Registration**: `Gio.resources_register(Gio.Resource.load('builddir/...'))`  in `main.ts`
 - **Add new resource**: Edit XML → rebuild → resource becomes accessible
 
@@ -126,6 +126,6 @@ Dependencies: `@girs/gtk-4.0`, `@girs/adw-1`, `@girs/gio-2.0`, `@girs/glib-2.0`,
 
 - **Import/export**: Don't rely on ES modules at runtime - build script removes them
 - **File order**: Services must be bundled before components that use them
-- **Resource paths**: Use `/com/obision/ObisionAppStore/` prefix, not relative paths
+- **Resource paths**: Use `/obision/app/store/` prefix, not relative paths
 - **GSettings**: Schemas must be compiled with `glib-compile-schemas data/`
 - **Memory leaks**: Always unsubscribe in `deactivate()` to prevent callback accumulation
