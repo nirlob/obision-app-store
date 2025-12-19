@@ -71,7 +71,7 @@ export class DebianService {
 
         this.appstreamCacheLoading = true;
         const cacheDir = GLib.get_user_cache_dir();
-        const cacheFile = GLib.build_filenamev([cacheDir, 'obision-store', 'appstream-icons.json']);
+        const cacheFile = GLib.build_filenamev([cacheDir, 'obision-app-store', 'appstream-icons.json']);
 
         let cacheExists = false;
         let cacheAge = 0;

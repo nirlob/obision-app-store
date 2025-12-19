@@ -303,17 +303,17 @@ if (fs.existsSync(DATA_DIR)) {
 }
 
 // Copy GSettings schema
-const schemaFile = path.join(DATA_DIR, 'com.obision.ObisionStore.gschema.xml');
+const schemaFile = path.join(DATA_DIR, 'com.obision.ObisionAppStore.gschema.xml');
 if (fs.existsSync(schemaFile)) {
-    fs.copyFileSync(schemaFile, path.join(dataBuildDir, 'com.obision.ObisionStore.gschema.xml'));
+    fs.copyFileSync(schemaFile, path.join(dataBuildDir, 'com.obision.ObisionAppStore.gschema.xml'));
 }
 
 // Compile GResource
 console.log('📦 Compiling GResource...');
-const gresourceXml = path.join(DATA_DIR, 'com.obision.ObisionStore.gresource.xml');
+const gresourceXml = path.join(DATA_DIR, 'com.obision.ObisionAppStore.gresource.xml');
 if (fs.existsSync(gresourceXml)) {
     try {
-        execSync(`glib-compile-resources --sourcedir=${DATA_DIR} --target=${path.join(BUILD_DIR, 'com.obision.ObisionStore.gresource')} ${gresourceXml}`, { stdio: 'inherit' });
+        execSync(`glib-compile-resources --sourcedir=${DATA_DIR} --target=${path.join(BUILD_DIR, 'com.obision.ObisionAppStore.gresource')} ${gresourceXml}`, { stdio: 'inherit' });
     } catch (error) {
         console.warn('⚠️  Could not compile GResource');
     }

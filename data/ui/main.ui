@@ -3,7 +3,7 @@
   <requires lib="gtk" version="4.0"/>
   <requires lib="libadwaita" version="1.0"/>
   
-  <object class="AdwApplicationWindow" id="ObisionStoreWindow">
+  <object class="AdwApplicationWindow" id="ObisionAppStoreWindow">
     <property name="default-width">1200</property>
     <property name="default-height">800</property>
     <property name="title">Store</property>

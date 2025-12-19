@@ -7,7 +7,7 @@ import { CategoriesComponent } from './components/categories';
 import { AppDetailsComponent } from './components/app-details';
 import { UpdatesComponent } from './components/updates';
 
-class ObisionStoreApplication {
+class ObisionAppStoreApplication {
     private application: Adw.Application;
     private window!: Adw.ApplicationWindow;
     private stack!: Gtk.Stack;
@@ -19,7 +19,7 @@ class ObisionStoreApplication {
 
     constructor() {
         this.application = new Adw.Application({
-            application_id: 'com.obision.ObisionStore',
+            application_id: 'com.obision.ObisionAppStore',
             flags: Gio.ApplicationFlags.FLAGS_NONE,
         });
 
@@ -32,7 +32,7 @@ class ObisionStoreApplication {
         
         // Register resources
         try {
-            const resource = Gio.Resource.load('builddir/com.obision.ObisionStore.gresource');
+            const resource = Gio.Resource.load('builddir/com.obision.ObisionAppStore.gresource');
             Gio.resources_register(resource);
         } catch (e) {
             console.warn('Could not load GResource:', e);
@@ -56,13 +56,13 @@ class ObisionStoreApplication {
         // Load UI from file
         const builder = new Gtk.Builder();
         try {
-            builder.add_from_resource('/com/obision/ObisionStore/ui/main.ui');
+            builder.add_from_resource('/com/obision/ObisionAppStore/ui/main.ui');
         } catch (e) {
             console.error('Error loading UI:', e);
             return;
         }
 
-        this.window = builder.get_object('ObisionStoreWindow') as Adw.ApplicationWindow;
+        this.window = builder.get_object('ObisionAppStoreWindow') as Adw.ApplicationWindow;
         this.window.set_application(this.application);
         
         this.stack = builder.get_object('content_stack') as Gtk.Stack;
@@ -156,7 +156,7 @@ class ObisionStoreApplication {
     private loadCustomCSS(): void {
         const cssProvider = new Gtk.CssProvider();
         try {
-            cssProvider.load_from_resource('/com/obision/ObisionStore/style.css');
+            cssProvider.load_from_resource('/com/obision/ObisionAppStore/style.css');
         } catch (e) {
             try {
                 cssProvider.load_from_path('data/style.css');
@@ -180,7 +180,7 @@ class ObisionStoreApplication {
 }
 
 function main(args: string[]): number {
-    const app = new ObisionStoreApplication();
+    const app = new ObisionAppStoreApplication();
     return app.run(args);
 }
 

@@ -80,7 +80,7 @@ npm run meson-uninstall
 ## Project Structure
 
 ```
-obision-store/
+obision-app-store/
 ├── src/
 │   ├── main.ts                 # Application entry point
 │   ├── components/             # UI components

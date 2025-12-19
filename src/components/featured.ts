@@ -33,7 +33,7 @@ export class FeaturedComponent {
 
     private loadUI(): Gtk.Stack {
         const builder = new Gtk.Builder();
-        builder.add_from_resource('/com/obision/ObisionStore/ui/featured.ui');
+        builder.add_from_resource('/com/obision/ObisionAppStore/ui/featured.ui');
         
         const stack = builder.get_object('FeaturedView') as Gtk.Stack;
         this.carousel = builder.get_object('featured_carousel') as Adw.Carousel;

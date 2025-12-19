@@ -24,7 +24,7 @@ export class CacheService {
     private constructor() {
         // Get cache directory
         const cacheDir = GLib.get_user_cache_dir();
-        const appCacheDir = GLib.build_filenamev([cacheDir, 'obision-store']);
+        const appCacheDir = GLib.build_filenamev([cacheDir, 'obision-app-store']);
         
         // Create cache directory if it doesn't exist
         const dir = Gio.File.new_for_path(appCacheDir);

@@ -1,7 +1,7 @@
-project('obision-store', version: '1.0.0', meson_version: '>= 0.59.0')
+project('obision-app-store', version: '1.0.0', meson_version: '>= 0.59.0')
 
-application_id = 'com.obision.ObisionStore'
-app_name = 'obision-store'
+application_id = 'com.obision.ObisionAppStore'
+app_name = 'obision-app-store'
 
 prefix = get_option('prefix')
 bindir = prefix / get_option('bindir')

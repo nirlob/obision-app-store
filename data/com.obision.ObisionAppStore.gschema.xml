@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="com.obision.ObisionStore" path="/com/obision/ObisionStore/">
+  <schema id="com.obision.ObisionAppStore" path="/com/obision/ObisionAppStore/">
     <key name="window-width" type="i">
       <default>1200</default>
       <summary>Window width</summary>

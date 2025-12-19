@@ -1,6 +1,6 @@
 {
-  "name": "obision-store",
-  "version": "1.0.0",
+  "name": "obision-app-store",
+  "version": "0.1.0",
   "description": "Application store manager for GNOME",
   "main": "builddir/main.js",
   "scripts": {

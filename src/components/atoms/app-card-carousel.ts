@@ -21,7 +21,7 @@ export class AppCardCarousel {
         
         // Load UI from file
         const builder = new Gtk.Builder();
-        builder.add_from_resource('/com/obision/ObisionStore/ui/atoms/app-card-carousel.ui');
+        builder.add_from_resource('/com/obision/ObisionAppStore/ui/atoms/app-card-carousel.ui');
         
         this.card = builder.get_object('AppCardCarousel') as Gtk.Box;
         this.appIcon = builder.get_object('app_icon') as Gtk.Image;
