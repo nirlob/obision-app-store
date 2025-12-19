@@ -24,6 +24,10 @@
   ],
   "author": "Jose Francisco Gonzalez",
   "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nirlob/obision-app-store.git"
+  },
   "dependencies": {
     "@girs/adw-1": "^1.9.0-4.0.0-beta.38",
     "@girs/gio-2.0": "^2.86.0-4.0.0-beta.38",
